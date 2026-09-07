@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  analyze_and_test:
-    name: Code Quality & Tests
+  format:
+    name: Code Formatting
     runs-on: ubuntu-latest
 
     steps:
@@ -28,8 +28,44 @@ jobs:
       - name: Check code formatting
         run: dart format --output=none --set-exit-if-changed .
 
+  analyze:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
       - name: Analyze code
         run: flutter analyze
 
-      - name: Run unit and widget tests
+  test:
+    name: Unit & Widget Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
         run: flutter test
