@@ -6,15 +6,10 @@ import '../models/order_item_model.dart';
 import '../models/order_model.dart';
 import '../models/user_model.dart';
 
-/// Données locales qui remplacent Firebase pendant le développement.
-///
-/// Utiliser ces listes permet de tester l'application sans Firestore :
-/// le jour de la mise en production, on remplace simplement la source
-/// de données par les appels Firestore.
+/// Données locales de test pour le développement, en attendant Firestore.
 class MockData {
   MockData._();
 
-  /// Tous les utilisateurs (étudiants et commerçants).
   static final List<UserModel> utilisateurs = <UserModel>[
     UserModel(
       idUser: 'user-001',
@@ -76,7 +71,6 @@ class MockData {
   static List<UserModel> get commercants =>
       utilisateurs.where((user) => user.role == UserRole.merchant).toList();
 
-  /// Plats proposés par les commerçants.
   static final List<FoodModel> plats = <FoodModel>[
     FoodModel(
       idFood: 'food-001',
@@ -121,7 +115,6 @@ class MockData {
     ),
   ];
 
-  /// Commandes passées, couvrant tous les statuts.
   static final List<OrderModel> commandes = <OrderModel>[
     OrderModel(
       idCommande: 'cmd-001',
@@ -236,8 +229,7 @@ class MockData {
       idCommercant: 'user-005',
       dateCommande: _joursAvant(5, heures: -6),
       montantTotal: 500,
-      typeReception: DeliveryType.livraison,
-      adresseLivraison: 'Résidence Campus Melen, bloc A',
+      typeReception: DeliveryType.retrait,
       statut: OrderStatus.recu,
       items: <OrderItemModel>[
         const OrderItemModel(
@@ -251,7 +243,6 @@ class MockData {
     ),
   ];
 
-  /// Retourne un [DateTime] il y a [jours] jours (+ [heures] peut être négatif).
   static DateTime _joursAvant(int jours, {int heures = 0}) {
     return DateTime.now()
         .subtract(Duration(days: jours, hours: -heures))

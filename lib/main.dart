@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 
 Future<void> main() async {
-  // Initialize Firebase before launching the app.
-  // Platform options (firebase_options.dart) will be added
-  // once `flutterfire configure` is run against the project.
   WidgetsFlutterBinding.ensureInitialized();
+  // firebase_options.dart sera ajouté après `flutterfire configure`.
   await Firebase.initializeApp();
   runApp(const QuickEatApp());
 }

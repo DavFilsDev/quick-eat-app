@@ -1,29 +1,12 @@
-/// Modèle d'un plat proposé par un commerçant.
-///
-/// Stocké dans la collection Firestore `menus`.
+/// Plat proposé par un commerçant.
 class FoodModel {
-  /// Identifiant unique (clé primaire).
   final String idFood;
-
-  /// Nom du plat.
   final String nom;
-
-  /// Description du plat.
   final String? description;
-
-  /// Prix en FCFA.
   final double prix;
-
-  /// URL de la photo du plat.
   final String? imageUrl;
-
-  /// Catégorie du plat (ex. : Fast Food, Boisson…).
   final String categorie;
-
-  /// Disponibilité du plat.
   final bool disponible;
-
-  /// Identifiant du commerçant propriétaire (clé étrangère).
   final String idCommercant;
 
   const FoodModel({
@@ -37,7 +20,6 @@ class FoodModel {
     required this.idCommercant,
   });
 
-  /// Construit un [FoodModel] depuis un document Firestore.
   factory FoodModel.fromMap(Map<String, dynamic> data, {required String id}) {
     return FoodModel(
       idFood: data['idFood'] as String? ?? id,
@@ -51,7 +33,6 @@ class FoodModel {
     );
   }
 
-  /// Convertit le modèle en document Firestore.
   Map<String, dynamic> toMap() {
     return {
       'idFood': idFood,
@@ -65,15 +46,11 @@ class FoodModel {
     };
   }
 
-  /// Construit un [FoodModel] depuis un JSON (API REST).
-  factory FoodModel.fromJson(Map<String, dynamic> json) {
-    return FoodModel.fromMap(json, id: json['idFood'] as String? ?? '');
-  }
+  factory FoodModel.fromJson(Map<String, dynamic> json) =>
+      FoodModel.fromMap(json, id: json['idFood'] as String? ?? '');
 
-  /// Convertit le modèle en JSON (API REST).
   Map<String, dynamic> toJson() => toMap();
 
-  /// Copie du modèle en modifiant certains champs.
   FoodModel copyWith({
     String? nom,
     String? description,
@@ -94,7 +71,6 @@ class FoodModel {
     );
   }
 
-  // Écoute temps réel du document (bonus suivi en temps réel).
   @override
   String toString() => 'FoodModel($nom — $prix FCFA)';
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:quickeat/mock/mock_data.dart';
+import 'package:quickeat/models/enums/delivery_type.dart';
 import 'package:quickeat/models/enums/order_status.dart';
 import 'package:quickeat/models/enums/user_role.dart';
 
@@ -95,6 +96,31 @@ void main() {
           OrderStatus.recu,
         ]),
       );
+    });
+
+    test("l'annulation n'est autorisée qu'en EN_ATTENTE", () {
+      for (final commande in MockData.commandes) {
+        final attendu = commande.statut == OrderStatus.enAttente;
+        expect(commande.peutEtreAnnulee, attendu, reason: commande.idCommande);
+      }
+    });
+
+    test('workflows marchand conformes aux règles métier', () {
+      for (final commande in MockData.commandes) {
+        if (commande.typeReception == DeliveryType.livraison) {
+          expect(commande.statutsMarchand, const <OrderStatus>[
+            OrderStatus.acceptee,
+            OrderStatus.enCoursDeLivraison,
+            OrderStatus.livree,
+          ], reason: commande.idCommande);
+        } else {
+          expect(commande.statutsMarchand, const <OrderStatus>[
+            OrderStatus.acceptee,
+            OrderStatus.terminee,
+            OrderStatus.recu,
+          ], reason: commande.idCommande);
+        }
+      }
     });
   });
 }

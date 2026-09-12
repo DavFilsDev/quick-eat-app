@@ -3,34 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'enums/user_role.dart';
 
 /// Modèle d'un utilisateur (étudiant ou commerçant).
-///
-/// Stocké dans la collection Firestore `users`.
 class UserModel {
-  /// Identifiant unique (clé primaire).
   final String idUser;
-
-  /// Prénom(s) de l'utilisateur (affiché sur la page profil).
   final String prenoms;
-
-  /// Nom de famille de l'utilisateur.
   final String nom;
-
-  /// Adresse email.
   final String email;
-
-  /// Numéro de téléphone.
   final String? telephone;
-
-  /// Rôle : étudiant ou commerçant.
   final UserRole role;
-
-  /// URL de la photo de profil.
   final String? photoUrl;
-
-  /// Campus d'inscription de l'utilisateur.
   final String campus;
-
-  /// Date de création du compte.
   final DateTime? dateCreation;
 
   const UserModel({
@@ -45,10 +26,8 @@ class UserModel {
     this.dateCreation,
   });
 
-  /// Nom complet prénom(s) + nom.
   String get nomComplet => '$prenoms $nom'.trim();
 
-  /// Construit un [UserModel] depuis un document Firestore.
   factory UserModel.fromMap(Map<String, dynamic> data, {required String id}) {
     return UserModel(
       idUser: data['idUser'] as String? ?? id,
@@ -63,7 +42,6 @@ class UserModel {
     );
   }
 
-  /// Convertit le modèle en document Firestore.
   Map<String, dynamic> toMap() {
     return {
       'idUser': idUser,
@@ -78,15 +56,11 @@ class UserModel {
     };
   }
 
-  /// Construit un [UserModel] depuis un JSON (API REST).
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel.fromMap(json, id: json['idUser'] as String? ?? '');
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      UserModel.fromMap(json, id: json['idUser'] as String? ?? '');
 
-  /// Convertit le modèle en JSON (API REST).
   Map<String, dynamic> toJson() => toMap();
 
-  /// Copie du modèle en modifiant certains champs.
   UserModel copyWith({
     String? prenoms,
     String? nom,
@@ -110,7 +84,7 @@ class UserModel {
     );
   }
 
-  /// Parse une date venant de Firestore (Timestamp) ou d'un JSON (String).
+  // Firestore renvoie un Timestamp, le JSON une String ISO.
   static DateTime? _parseDate(Object? value) {
     if (value == null) return null;
     if (value is DateTime) return value;
