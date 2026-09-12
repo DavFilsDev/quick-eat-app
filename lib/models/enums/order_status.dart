@@ -1,15 +1,15 @@
 /// Statut d'évolution d'une commande.
 ///
-/// Flux complet vu par l'étudiant :
-/// EN_ATTENTE → ACCEPTEE → TERMINEE → EN_COURS_DE_LIVRAISON → LIVREE
-/// En mode retrait, la commande s'arrête à TERMINEE puis passe à LIVREE
-/// au retrait sur place.
+/// Flux complet :
+/// EN_ATTENTE → ACCEPTEE → TERMINEE → EN_COURS_DE_LIVRAISON → LIVREE → RECU
+/// En mode retrait, la commande passe de TERMINEE directement à RECU.
 enum OrderStatus {
   enAttente('EN_ATTENTE', 'En attente'),
   acceptee('ACCEPTEE', 'Acceptée'),
-  terminee('TERMINEE', 'Terminée'),
   enCoursDeLivraison('EN_COURS_DE_LIVRAISON', 'En cours de livraison'),
   livree('LIVREE', 'Livrée'),
+  terminee('TERMINEE', 'Terminée'),
+  recu('RECU', 'Reçue'),
   annulee('ANNULEE', 'Annulée');
 
   const OrderStatus(this.dbValue, this.label);

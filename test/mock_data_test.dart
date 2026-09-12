@@ -10,16 +10,30 @@ void main() {
       expect(MockData.utilisateurs, isNotEmpty);
 
       for (final user in MockData.utilisateurs) {
-        expect(user.campus, isNotEmpty, reason: 'campus manquant: ${user.idUser}');
-        expect(user.prenoms, isNotEmpty, reason: 'prenoms manquants: ${user.idUser}');
+        expect(
+          user.campus,
+          isNotEmpty,
+          reason: 'campus manquant: ${user.idUser}',
+        );
+        expect(
+          user.prenoms,
+          isNotEmpty,
+          reason: 'prenoms manquants: ${user.idUser}',
+        );
       }
     });
 
     test('contient étudiants et commerçants', () {
       expect(MockData.etudiants, isNotEmpty);
       expect(MockData.commercants, isNotEmpty);
-      expect(MockData.etudiants.every((u) => u.role == UserRole.student), isTrue);
-      expect(MockData.commercants.every((u) => u.role == UserRole.merchant), isTrue);
+      expect(
+        MockData.etudiants.every((u) => u.role == UserRole.student),
+        isTrue,
+      );
+      expect(
+        MockData.commercants.every((u) => u.role == UserRole.merchant),
+        isTrue,
+      );
     });
 
     test('contient des plats disponibles et indisponibles', () {
@@ -33,15 +47,23 @@ void main() {
       expect(MockData.commandes, isNotEmpty);
 
       for (final commande in MockData.commandes) {
-        final etudiantExiste =
-            MockData.etudiants.any((u) => u.idUser == commande.idEtudiant);
-        final commercantExiste =
-            MockData.commercants.any((u) => u.idUser == commande.idCommercant);
+        final etudiantExiste = MockData.etudiants.any(
+          (u) => u.idUser == commande.idEtudiant,
+        );
+        final commercantExiste = MockData.commercants.any(
+          (u) => u.idUser == commande.idCommercant,
+        );
 
-        expect(etudiantExiste, isTrue,
-            reason: 'étudiant inconnu: ${commande.idEtudiant}');
-        expect(commercantExiste, isTrue,
-            reason: 'commerçant inconnu: ${commande.idCommercant}');
+        expect(
+          etudiantExiste,
+          isTrue,
+          reason: 'étudiant inconnu: ${commande.idEtudiant}',
+        );
+        expect(
+          commercantExiste,
+          isTrue,
+          reason: 'commerçant inconnu: ${commande.idCommercant}',
+        );
       }
     });
 
@@ -49,8 +71,11 @@ void main() {
       for (final commande in MockData.commandes) {
         for (final item in commande.items) {
           final platExiste = MockData.plats.any((p) => p.idFood == item.idFood);
-          expect(platExiste, isTrue,
-              reason: 'plat inconnu: ${item.idFood} (${commande.idCommande})');
+          expect(
+            platExiste,
+            isTrue,
+            reason: 'plat inconnu: ${item.idFood} (${commande.idCommande})',
+          );
           expect(item.quantite, greaterThan(0));
           expect(item.sousTotal, item.quantite * item.prixUnitaire);
         }
@@ -67,6 +92,7 @@ void main() {
           OrderStatus.terminee,
           OrderStatus.enCoursDeLivraison,
           OrderStatus.livree,
+          OrderStatus.recu,
         ]),
       );
     });

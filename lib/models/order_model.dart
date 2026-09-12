@@ -27,8 +27,9 @@ class OrderModel {
   /// Mode de réception : livraison ou retrait.
   final DeliveryType typeReception;
 
-  /// Adresse de retrait (si livraison).
-  final String? adresseRetrait;
+  /// Adresse de livraison (utilisée uniquement si [typeReception] =
+  /// [DeliveryType.livraison]).
+  final String? adresseLivraison;
 
   /// Statut de la commande (suivi temps réel).
   final OrderStatus statut;
@@ -43,7 +44,7 @@ class OrderModel {
     required this.dateCommande,
     required this.montantTotal,
     required this.typeReception,
-    this.adresseRetrait,
+    this.adresseLivraison,
     this.statut = OrderStatus.enAttente,
     this.items = const [],
   });
@@ -59,7 +60,7 @@ class OrderModel {
       typeReception: DeliveryType.fromDbValue(
         data['typeReception'] as String? ?? '',
       ),
-      adresseRetrait: data['adresseRetrait'] as String?,
+      adresseLivraison: data['adresseLivraison'] as String?,
       statut: OrderStatus.fromDbValue(data['statut'] as String? ?? ''),
       items: (data['items'] as List<dynamic>? ?? const [])
           .map((item) => OrderItemModel.fromMap(item as Map<String, dynamic>))
@@ -76,7 +77,7 @@ class OrderModel {
       'dateCommande': dateCommande,
       'montantTotal': montantTotal,
       'typeReception': typeReception.dbValue,
-      'adresseRetrait': adresseRetrait,
+      'adresseLivraison': adresseLivraison,
       'statut': statut.dbValue,
       'items': items.map((item) => item.toMap()).toList(),
     };
@@ -94,7 +95,7 @@ class OrderModel {
   OrderModel copyWith({
     double? montantTotal,
     DeliveryType? typeReception,
-    String? adresseRetrait,
+    String? adresseLivraison,
     OrderStatus? statut,
     List<OrderItemModel>? items,
   }) {
@@ -105,7 +106,7 @@ class OrderModel {
       dateCommande: dateCommande,
       montantTotal: montantTotal ?? this.montantTotal,
       typeReception: typeReception ?? this.typeReception,
-      adresseRetrait: adresseRetrait ?? this.adresseRetrait,
+      adresseLivraison: adresseLivraison ?? this.adresseLivraison,
       statut: statut ?? this.statut,
       items: items ?? this.items,
     );
@@ -113,20 +114,17 @@ class OrderModel {
 
   /// Filtre les statuts visibles côté marchand selon le mode de réception.
   ///
-  /// - Livraison : Accepter → Livraison (en cours de livraison)
-  /// - Retrait : Accepter → Terminée
+  /// - Livraison : Acceptée → Terminée → En cours de livraison → Livrée
+  /// - Retrait : Acceptée → Terminée → Reçue
   List<OrderStatus> get statutsMarchand {
     return typeReception == DeliveryType.livraison
         ? const [
             OrderStatus.acceptee,
+            OrderStatus.terminee,
             OrderStatus.enCoursDeLivraison,
             OrderStatus.livree,
           ]
-        : const [
-            OrderStatus.acceptee,
-            OrderStatus.terminee,
-            OrderStatus.livree,
-          ];
+        : const [OrderStatus.acceptee, OrderStatus.terminee, OrderStatus.recu];
   }
 
   /// Parse une date venant de Firestore (Timestamp) ou d'un JSON (String).

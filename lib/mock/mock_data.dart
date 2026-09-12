@@ -130,7 +130,7 @@ class MockData {
       dateCommande: _joursAvant(0, heures: -2),
       montantTotal: 1500,
       typeReception: DeliveryType.livraison,
-      adresseRetrait: 'Résidence Campus Ngoa, chambre 12',
+      adresseLivraison: 'Résidence Campus Ngoa, chambre 12',
       statut: OrderStatus.enAttente,
       items: <OrderItemModel>[
         const OrderItemModel(
@@ -167,7 +167,7 @@ class MockData {
       dateCommande: _joursAvant(2, heures: -3),
       montantTotal: 4000,
       typeReception: DeliveryType.livraison,
-      adresseRetrait: 'Amphi 300, Campus Melen',
+      adresseLivraison: 'Amphi 300, Campus Melen',
       statut: OrderStatus.enCoursDeLivraison,
       items: <OrderItemModel>[
         const OrderItemModel(
@@ -211,7 +211,7 @@ class MockData {
       dateCommande: _joursAvant(4, heures: -5),
       montantTotal: 1800,
       typeReception: DeliveryType.livraison,
-      adresseRetrait: 'Résidence Campus Melen, bloc B',
+      adresseLivraison: 'Résidence Campus Melen, bloc B',
       statut: OrderStatus.livree,
       items: <OrderItemModel>[
         const OrderItemModel(
@@ -227,6 +227,25 @@ class MockData {
           nom: 'Beignets',
           quantite: 1,
           prixUnitaire: 300,
+        ),
+      ],
+    ),
+    OrderModel(
+      idCommande: 'cmd-006',
+      idEtudiant: 'user-003',
+      idCommercant: 'user-005',
+      dateCommande: _joursAvant(5, heures: -6),
+      montantTotal: 500,
+      typeReception: DeliveryType.livraison,
+      adresseLivraison: 'Résidence Campus Melen, bloc A',
+      statut: OrderStatus.recu,
+      items: <OrderItemModel>[
+        const OrderItemModel(
+          idItem: 'item-008',
+          idFood: 'food-004',
+          nom: 'Boisson gazeuse',
+          quantite: 1,
+          prixUnitaire: 500,
         ),
       ],
     ),
