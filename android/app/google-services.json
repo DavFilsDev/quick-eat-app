@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "407341650736",
+    "project_id": "fscamp-app",
+    "storage_bucket": "fscamp-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:407341650736:android:41e69bb5815d2fc36c6ef5",
+        "android_client_info": {
+          "package_name": "com.quickeat.quickeat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnZ1fVFo4BZq0WBWafLaGaj1nSuIQRntk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
