@@ -16,7 +16,9 @@ class AppColors {
   // Couleurs des badges de statut de commande.
   static const Color statusPending = Color(0xFFF5A623); // EN_ATTENTE
   static const Color statusAccepted = Color(0xFF2E7D32); // ACCEPTEE
-  static const Color statusInProgress = Color(0xFFB3401E); // EN_COURS_DE_LIVRAISON
+  static const Color statusInProgress = Color(
+    0xFFB3401E,
+  ); // EN_COURS_DE_LIVRAISON
   static const Color statusDone = Color(0xFF2E7D32); // LIVREE / TERMINEE / RECU
   static const Color statusCancelled = Color(0xFFB00020); // ANNULEE
 }

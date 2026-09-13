@@ -6,9 +6,15 @@ abstract class AuthRepository {
   Stream<User?> get authStateChanges;
   User? get currentUser;
 
-  Future<UserCredential> signIn({required String email, required String password});
+  Future<UserCredential> signIn({
+    required String email,
+    required String password,
+  });
 
-  Future<UserCredential> signUp({required String email, required String password});
+  Future<UserCredential> signUp({
+    required String email,
+    required String password,
+  });
 
   Future<void> signOut();
 }
@@ -26,13 +32,25 @@ class FirebaseAuthRepository implements AuthRepository {
   User? get currentUser => _firebaseAuth.currentUser;
 
   @override
-  Future<UserCredential> signIn({required String email, required String password}) {
-    return _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+  Future<UserCredential> signIn({
+    required String email,
+    required String password,
+  }) {
+    return _firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   @override
-  Future<UserCredential> signUp({required String email, required String password}) {
-    return _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<UserCredential> signUp({
+    required String email,
+    required String password,
+  }) {
+    return _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   @override

@@ -21,9 +21,13 @@ class FirestoreUserRepository implements UserRepository {
 
   @override
   Stream<UserModel?> streamUtilisateur(String idUser) {
-    return _users.doc(idUser).snapshots().map(
-      (doc) => doc.exists ? UserModel.fromMap(doc.data()!, id: doc.id) : null,
-    );
+    return _users
+        .doc(idUser)
+        .snapshots()
+        .map(
+          (doc) =>
+              doc.exists ? UserModel.fromMap(doc.data()!, id: doc.id) : null,
+        );
   }
 
   @override

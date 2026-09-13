@@ -20,7 +20,11 @@ class ErrorView extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline, size: 40, color: Colors.redAccent),
             const SizedBox(height: 12),
-            Text(message, style: AppTextStyles.body, textAlign: TextAlign.center),
+            Text(
+              message,
+              style: AppTextStyles.body,
+              textAlign: TextAlign.center,
+            ),
             if (onRetry != null) ...[
               const SizedBox(height: 12),
               TextButton(onPressed: onRetry, child: const Text('Réessayer')),

@@ -19,9 +19,15 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle body = TextStyle(fontSize: 14, color: AppColors.textPrimary);
+  static const TextStyle body = TextStyle(
+    fontSize: 14,
+    color: AppColors.textPrimary,
+  );
 
-  static const TextStyle caption = TextStyle(fontSize: 12, color: AppColors.textSecondary);
+  static const TextStyle caption = TextStyle(
+    fontSize: 12,
+    color: AppColors.textSecondary,
+  );
 
   static const TextStyle price = TextStyle(
     fontSize: 16,

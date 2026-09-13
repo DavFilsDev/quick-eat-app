@@ -33,10 +33,11 @@ class FirestoreOrderRepository implements OrderRepository {
       .asyncMap(_avecItems);
 
   @override
-  Stream<List<OrderModel>> streamCommandesCommercant(String idCommercant) => _orders
-      .where('idCommercant', isEqualTo: idCommercant)
-      .snapshots()
-      .asyncMap(_avecItems);
+  Stream<List<OrderModel>> streamCommandesCommercant(String idCommercant) =>
+      _orders
+          .where('idCommercant', isEqualTo: idCommercant)
+          .snapshots()
+          .asyncMap(_avecItems);
 
   @override
   Future<String> creerCommande(OrderModel commande) async {
@@ -44,7 +45,10 @@ class FirestoreOrderRepository implements OrderRepository {
     final batch = _firestore.batch();
     batch.set(docRef, commande.toMap()..remove('items'));
     for (final item in commande.items) {
-      batch.set(docRef.collection(FirestorePaths.orderItems).doc(), item.toMap());
+      batch.set(
+        docRef.collection(FirestorePaths.orderItems).doc(),
+        item.toMap(),
+      );
     }
     await batch.commit();
     return docRef.id;
@@ -61,7 +65,9 @@ class FirestoreOrderRepository implements OrderRepository {
     if (data == null) {
       throw const Failure('Commande introuvable.');
     }
-    final statutActuel = OrderStatus.fromDbValue(data['statut'] as String? ?? '');
+    final statutActuel = OrderStatus.fromDbValue(
+      data['statut'] as String? ?? '',
+    );
     // Règle métier stricte du MCD : ANNULEE uniquement depuis EN_ATTENTE.
     if (statutActuel != OrderStatus.enAttente) {
       throw const InvalidOrderTransition(
@@ -71,14 +77,22 @@ class FirestoreOrderRepository implements OrderRepository {
     await mettreAJourStatut(idCommande, OrderStatus.annulee);
   }
 
-  Future<List<OrderModel>> _avecItems(QuerySnapshot<Map<String, dynamic>> snap) async {
+  Future<List<OrderModel>> _avecItems(
+    QuerySnapshot<Map<String, dynamic>> snap,
+  ) async {
     final commandes = <OrderModel>[];
     for (final doc in snap.docs) {
-      final itemsSnap = await doc.reference.collection(FirestorePaths.orderItems).get();
+      final itemsSnap = await doc.reference
+          .collection(FirestorePaths.orderItems)
+          .get();
       final items = itemsSnap.docs
-          .map((itemDoc) => OrderItemModel.fromMap(itemDoc.data(), id: itemDoc.id))
+          .map(
+            (itemDoc) => OrderItemModel.fromMap(itemDoc.data(), id: itemDoc.id),
+          )
           .toList();
-      commandes.add(OrderModel.fromMap(doc.data(), id: doc.id).copyWith(items: items));
+      commandes.add(
+        OrderModel.fromMap(doc.data(), id: doc.id).copyWith(items: items),
+      );
     }
     return commandes;
   }

@@ -17,10 +17,16 @@ Future<void> assurerSeedFirestore({FirebaseFirestore? firestore}) async {
 
   final batch = db.batch();
   for (final user in MockData.utilisateurs) {
-    batch.set(db.collection(FirestorePaths.users).doc(user.idUser), user.toMap());
+    batch.set(
+      db.collection(FirestorePaths.users).doc(user.idUser),
+      user.toMap(),
+    );
   }
   for (final menu in MockData.plats) {
-    batch.set(db.collection(FirestorePaths.menus).doc(menu.idFood), menu.toMap());
+    batch.set(
+      db.collection(FirestorePaths.menus).doc(menu.idFood),
+      menu.toMap(),
+    );
   }
   for (final commande in MockData.commandes) {
     batch.set(

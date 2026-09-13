@@ -24,16 +24,21 @@ class FirestoreMenuRepository implements MenuRepository {
 
   @override
   Stream<List<FoodModel>> streamMenus() => _menus.snapshots().map(
-    (snap) => snap.docs.map((doc) => FoodModel.fromMap(doc.data(), id: doc.id)).toList(),
+    (snap) => snap.docs
+        .map((doc) => FoodModel.fromMap(doc.data(), id: doc.id))
+        .toList(),
   );
 
   @override
-  Stream<List<FoodModel>> streamMenusParCommercant(String idCommercant) => _menus
-      .where('idCommercant', isEqualTo: idCommercant)
-      .snapshots()
-      .map(
-        (snap) => snap.docs.map((doc) => FoodModel.fromMap(doc.data(), id: doc.id)).toList(),
-      );
+  Stream<List<FoodModel>> streamMenusParCommercant(String idCommercant) =>
+      _menus
+          .where('idCommercant', isEqualTo: idCommercant)
+          .snapshots()
+          .map(
+            (snap) => snap.docs
+                .map((doc) => FoodModel.fromMap(doc.data(), id: doc.id))
+                .toList(),
+          );
 
   @override
   Future<String> creerMenu(FoodModel menu) async {
@@ -42,7 +47,8 @@ class FirestoreMenuRepository implements MenuRepository {
   }
 
   @override
-  Future<void> mettreAJourMenu(FoodModel menu) => _menus.doc(menu.idFood).update(menu.toMap());
+  Future<void> mettreAJourMenu(FoodModel menu) =>
+      _menus.doc(menu.idFood).update(menu.toMap());
 
   @override
   Future<void> supprimerMenu(String idMenu) => _menus.doc(idMenu).delete();
