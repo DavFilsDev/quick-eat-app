@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- Autorise le HTTP simple UNIQUEMENT en debug, pour parler aux
-         émulateurs Firebase locaux (Firestore/Auth) qui ne sont pas en
-         HTTPS. Ce fichier ne s'applique jamais aux builds release. -->
+         émulateurs Firebase locaux (Firestore/Auth), qui ne sont pas en
+         HTTPS. Ce fichier ne s'applique jamais aux builds release/profile. -->
     <application android:usesCleartextTraffic="true" />
 </manifest>

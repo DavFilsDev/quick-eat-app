@@ -17,15 +17,21 @@ const bool _useRealFirebase = bool.fromEnvironment(
 final bool _useEmulator = kDebugMode && !_useRealFirebase;
 
 const String _devRole = String.fromEnvironment('DEV_ROLE', defaultValue: '');
+const String _emulatorHostOverride = String.fromEnvironment(
+  'EMULATOR_HOST',
+  defaultValue: '',
+);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   if (_useEmulator) {
-    final host = defaultTargetPlatform == TargetPlatform.android
-        ? '10.0.2.2'
-        : 'localhost';
+    final host = _emulatorHostOverride.isNotEmpty
+        ? _emulatorHostOverride
+        : (defaultTargetPlatform == TargetPlatform.android
+              ? '10.0.2.2'
+              : 'localhost');
     FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
     await FirebaseAuth.instance.useAuthEmulator(host, 9099);
 
