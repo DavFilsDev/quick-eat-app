@@ -55,5 +55,5 @@ class FirestoreMenuRepository implements MenuRepository {
 
   @override
   Future<void> changerDisponibilite(String idMenu, bool disponible) =>
-      _menus.doc(idMenu).update({'disponibilite': disponible});
+      _menus.doc(idMenu).update({'disponible': disponible});
 }
