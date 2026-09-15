@@ -43,140 +43,148 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     return ChangeNotifierProvider(
       create: (_) => _controller,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Accueil Étudiant')),
-        body: Column(
-          children: [
-            // Barre de recherche
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: TextField(
-                controller: _searchController,
-                focusNode: _focusNode,
-                onChanged: (value) => _controller.setRecherche(value),
-                decoration: const InputDecoration(
-                  hintText: 'Rechercher un plat...',
-                  prefixIcon: Icon(Icons.search),
-                ),
-              ),
+        appBar: AppBar(
+          title: const Text(
+            'QuickEat',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
             ),
-
-            // Filtres par campus (dynamiques depuis Firestore)
-            SizedBox(
-              height: 48,
-              child: Consumer<CatalogController>(
-                builder: (context, controller, child) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CategoryFilterChip(
-                        labels: controller.nomsCampuses,
-                        selectedLabel: controller.campusSelectionne,
-                        onSelected: (nom) => controller.setCampusParNom(nom),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Filtres par restaurant (Tous / nom des restaurants)
-            SizedBox(
-              height: 48,
-              child: Consumer<CatalogController>(
-                builder: (context, controller, child) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CategoryFilterChip(
-                        labels: controller.nomsRestaurants,
-                        selectedLabel: controller.restaurantSelectionne,
-                        onSelected: (nom) =>
-                            controller.setRestaurantParNom(nom),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Liste des restaurants
-            SizedBox(
-              height: 120,
-              child: Consumer<CatalogController>(
-                builder: (context, controller, child) {
-                  final ids = controller.restaurantsDisponibles;
-                  if (ids.isEmpty) {
-                    return const Center(
-                      child: Text('Aucun restaurant disponible'),
-                    );
-                  }
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: ids.length,
-                    itemBuilder: (context, index) {
-                      final id = ids[index];
-                      return SizedBox(
-                        width: 220,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: RestaurantCard(
-                            idCommercant: id,
-                            restaurantNom: controller.getNomRestaurant(id),
-                            nbPlats: controller.nbPlatsRestaurant(id),
-                            onTap: () {
-                              Navigator.of(context).pushNamed(
-                                AppRouter.restaurantDetail,
-                                arguments: id,
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-
-            // Liste des plats disponibles
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Plats disponibles',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Consumer<CatalogController>(
-                builder: (context, controller, child) {
-                  final plats = controller.plats;
-                  if (plats.isEmpty) {
-                    return const Center(child: Text('Aucun plat trouvé'));
-                  }
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: plats.length,
-                    itemBuilder: (context, index) {
-                      final food = plats[index];
-                      return FoodCard(
-                        food: food,
-                        // TODO(Dev 3 - feat/student-orders): CreateOrderModal.show(context, food: food);
-                        onCommander: () {},
-                      );
-                    },
-                  );
-                },
-              ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.account_circle, size: 32),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(AppRouter.studentProfile),
             ),
           ],
+        ),
+        body: Consumer<CatalogController>(
+          builder: (context, controller, child) {
+            final plats = controller.plats;
+            final restaurantIds = controller.restaurantsDisponibles;
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. Barre de recherche
+                  TextField(
+                    controller: _searchController,
+                    focusNode: _focusNode,
+                    onChanged: (value) => controller.setRecherche(value),
+                    decoration: InputDecoration(
+                      hintText: 'Chercher un plat ou un restaurant...',
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // 2. Section RESTAURANTS DU CAMPUS (Filtres Chips)
+                  const Text(
+                    'RESTAURANTS DU CAMPUS',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: CategoryFilterChip(
+                      labels: controller.nomsRestaurants,
+                      selectedLabel: controller.restaurantSelectionne,
+                      onSelected: (nom) => controller.setRestaurantParNom(nom),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // 3. Section Plats disponibles
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Plats disponibles',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${plats.length} ${plats.length > 1 ? "plats" : "plat"}',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Liste verticale des plats
+                  if (plats.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: Text('Aucun plat disponible')),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: plats.length,
+                      itemBuilder: (context, index) {
+                        final food = plats[index];
+                        return FoodCard(food: food, onCommander: () {});
+                      },
+                    ),
+                  const SizedBox(height: 24),
+
+                  // 4. Section Restaurants du campus
+                  const Text(
+                    'Restaurants du campus',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Liste verticale des restaurants avec bouton "Visiter"
+                  if (restaurantIds.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: Text('Aucun restaurant trouvé')),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: restaurantIds.length,
+                      itemBuilder: (context, index) {
+                        final id = restaurantIds[index];
+                        return RestaurantCard(
+                          idCommercant: id,
+                          restaurantNom: controller.getNomRestaurant(id),
+                          nbPlats: controller.nbPlatsRestaurant(id),
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              AppRouter.restaurantDetail,
+                              arguments: id,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
