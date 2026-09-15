@@ -8,6 +8,7 @@ import '../controllers/catalog_controller.dart';
 import '../widgets/category_filter_chip.dart';
 import '../widgets/food_card.dart';
 import '../widgets/restaurant_card.dart';
+import '../../../../core/constants/app_colors.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
