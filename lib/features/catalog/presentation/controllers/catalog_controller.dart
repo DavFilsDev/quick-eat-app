@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import '../../../../data/repositories/menu_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../models/food_model.dart';

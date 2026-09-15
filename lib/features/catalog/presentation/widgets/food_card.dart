@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../models/food_model.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../models/food_model.dart';
 
 class FoodCard extends StatelessWidget {
   final FoodModel food;
@@ -13,6 +14,8 @@ class FoodCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDisponible = food.disponible;
+    final description = food.description;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -32,10 +35,10 @@ class FoodCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (food.description.isNotEmpty) ...[
+                  if (description != null && description.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      food.description,
+                      description,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -49,7 +52,7 @@ class FoodCard extends StatelessWidget {
                     children: [
                       Text(
                         CurrencyFormatter.format(food.prix),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
@@ -82,7 +85,7 @@ class FoodCard extends StatelessWidget {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(
+                errorWidget: (context, url, error) => Container(
                   width: 80,
                   height: 80,
                   color: Colors.grey.shade200,
