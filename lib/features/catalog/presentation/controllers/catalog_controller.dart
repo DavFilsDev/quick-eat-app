@@ -7,9 +7,6 @@ import '../../../../data/repositories/menu_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../models/food_model.dart';
 
-/// Contrôleur gérant l'état et les filtres de l'écran Accueil Étudiant
-/// et de l'écran Détail Restaurant.
-/// Les catégories et les noms de restaurants sont dynamiques (depuis Firestore).
 class CatalogController extends ChangeNotifier {
   CatalogController({
     required this.menuRepository,
@@ -31,23 +28,26 @@ class CatalogController extends ChangeNotifier {
   String? _categorieSelectionnee;
   String? _campusSelectionne;
 
-  /// Noms des commerçants résolus (idCommercant → nom).
+  String get campusSelectionne => _campusSelectionne ?? 'Tous';
+
+  String get restaurantSelectionne => _idCommercantSelectionne == null
+      ? 'Tous'
+      : getNomRestaurant(_idCommercantSelectionne!);
+
+  String get categorieSelectionnee => _categorieSelectionnee ?? 'Tous';
+
   final Map<String, String> _nomsCommercants = {};
 
-  /// Campus des commerçants résolus (idCommercant → campus).
   final Map<String, String> _campusesCommercants = {};
 
   List<FoodModel> get plats => _platsFiltres;
 
-  /// Catégories dynamiques extraites des FoodModel.categorie.
   List<String> get categories {
     final distinct = _tousLesPlats.map((m) => m.categorie).toSet().toList();
     distinct.sort();
     return ['Tous', ...distinct];
   }
 
-  /// Liste des restaurants (idCommercant) pour les chips de filtre.
-  /// Respecte le campus sélectionné si un campus est actif.
   List<String> get restaurantsDisponibles {
     final ids = _tousLesPlats.map((m) => m.idCommercant).toSet().toList();
     if (_campusSelectionne == null) return ids;
@@ -56,16 +56,13 @@ class CatalogController extends ChangeNotifier {
         .toList();
   }
 
-  /// Nom d'un restaurant par son idCommercant.
   String getNomRestaurant(String idCommercant) =>
       _nomsCommercants[idCommercant] ?? 'Restaurant';
 
-  /// Nombre de plats disponibles pour un restaurant donné.
   int nbPlatsRestaurant(String idCommercant) => _tousLesPlats
       .where((m) => m.idCommercant == idCommercant && m.disponible)
       .length;
 
-  /// Liste des noms de restaurants distincts (chips de l'Accueil).
   List<String> get nomsRestaurants {
     final noms = <String>{};
     for (final id in restaurantsDisponibles) {
@@ -75,7 +72,6 @@ class CatalogController extends ChangeNotifier {
     return ['Tous', ...sorted];
   }
 
-  /// Liste des campus distincts des commerçants (chips de filtre de l'Accueil).
   List<String> get nomsCampuses {
     final campuses = _campusesCommercants.values
         .where((c) => c.isNotEmpty)
@@ -84,7 +80,6 @@ class CatalogController extends ChangeNotifier {
     return ['Tous', ...sorted];
   }
 
-  /// Définit le campus filtré (null ou 'Tous' remet tous les restaurants).
   void setCampusParNom(String? campus) {
     if (campus == null || campus == 'Tous') {
       _campusSelectionne = null;
@@ -95,7 +90,6 @@ class CatalogController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Définit le restaurant filtré via son nom (null remet 'Tous').
   void setRestaurantParNom(String? nom) {
     if (nom == null || nom == 'Tous') {
       setCommercant(null);

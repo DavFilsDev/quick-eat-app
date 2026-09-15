@@ -9,9 +9,6 @@ import '../widgets/category_filter_chip.dart';
 import '../widgets/food_card.dart';
 import '../widgets/restaurant_card.dart';
 
-/// Écran d'accueil étudiant (maquette "Accueil Étudiant") :
-/// barre de recherche, filtres par restaurant, liste des restaurants
-/// et liste des plats disponibles.
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
 
@@ -75,7 +72,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: CategoryFilterChip(
                         labels: controller.nomsCampuses,
-                        selectedLabel: null,
+                        selectedLabel: controller.campusSelectionne,
                         onSelected: (nom) => controller.setCampusParNom(nom),
                       ),
                     ),
@@ -96,7 +93,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: CategoryFilterChip(
                         labels: controller.nomsRestaurants,
-                        selectedLabel: null,
+                        selectedLabel: controller.restaurantSelectionne,
                         onSelected: (nom) =>
                             controller.setRestaurantParNom(nom),
                       ),

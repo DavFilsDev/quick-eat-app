@@ -8,9 +8,6 @@ import '../controllers/catalog_controller.dart';
 import '../widgets/category_filter_chip.dart';
 import '../widgets/food_card.dart';
 
-/// Écran détail restaurant (maquette "Détail Restaurant") :
-/// bannière, horaires (statiques), recherche interne, filtres par catégorie
-/// et liste des plats du commerçant uniquement.
 class RestaurantDetailScreen extends StatefulWidget {
   final String idCommercant;
 
@@ -43,7 +40,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     super.dispose();
   }
 
-  /// Horaires fixes (texte statique dérivé du profil commerçant).
   String get _horaires => 'Ouvert lundi - vendredi, 08h00 - 20h00';
 
   @override
@@ -133,7 +129,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: CategoryFilterChip(
                         labels: controller.categories,
-                        selectedLabel: null,
+                        selectedLabel: controller.categorieSelectionnee,
                         onSelected: (label) => controller.setCategorie(label),
                       ),
                     ),
