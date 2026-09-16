@@ -60,7 +60,76 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Détail Commande')),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'COMMANDE ACTIVE',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.grey,
+                letterSpacing: 1.2,
+              ),
+            ),
+            Text(
+              'Détails #QE-${widget.idCommande.substring(0, 3).toUpperCase()}',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ],
+        ),
+        actions: [
+          Consumer<MerchantOrdersController>(
+            builder: (context, controller, child) {
+              final o = controller.orders.where(
+                (o) => o.idCommande == widget.idCommande,
+              );
+              if (o.isEmpty) return const SizedBox.shrink();
+              final delivery = o.first.typeReception == DeliveryType.livraison;
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: delivery
+                          ? Colors.orange.shade50
+                          : Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          delivery ? Icons.delivery_dining : Icons.storefront,
+                          size: 14,
+                          color: delivery
+                              ? Colors.deepOrange
+                              : Colors.grey.shade700,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          delivery ? 'À LIVRER' : 'SUR PLACE',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: delivery
+                                ? Colors.deepOrange
+                                : Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: Consumer<MerchantOrdersController>(
         builder: (context, controller, child) {
           final orders = controller.orders;
@@ -282,7 +351,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                 const SizedBox(height: 32),
 
                 // Action Button
-                if (nextStatus != null)
+                if (nextStatus != null) ...[
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -290,12 +359,22 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                       onPressed: () =>
                           _updateStatus(context, order.idCommande, nextStatus),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: const Color(0xFFC0392B),
                         foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: Text('Passer à : ${nextStatus.label}'),
+                      child: Text('✓ Passer à : ${nextStatus.label}'),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _actionHint(order, nextStatus),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                ],
               ],
             ),
           );
@@ -371,5 +450,21 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
     return rest > 0
         ? '${first.quantite}× ${first.nom} +${rest} autre(s)'
         : '${first.quantite}× ${first.nom}';
+  }
+
+  String _actionHint(OrderModel order, OrderStatus nextStatus) {
+    final count = order.items.fold<int>(0, (sum, i) => sum + i.quantite);
+    switch (nextStatus) {
+      case OrderStatus.acceptee:
+        return 'Valide la préparation des $count plats en cuisine.';
+      case OrderStatus.enCoursDeLivraison:
+        return 'La commande part en livraison.';
+      case OrderStatus.terminee:
+        return 'Marque la commande comme prête pour le retrait.';
+      case OrderStatus.recu:
+        return 'Confirme la réception de la commande.';
+      default:
+        return '';
+    }
   }
 }
