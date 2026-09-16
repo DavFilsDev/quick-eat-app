@@ -4,7 +4,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../data/repositories/auth_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../models/enums/user_role.dart';
-import '../../../../routes/app_router.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/role_toggle.dart';
@@ -153,7 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
-                    value: _campusSelectionne,
+                    initialValue: _campusSelectionne,
                     decoration: const InputDecoration(
                       labelText: 'Ton Campus principal',
                       prefixIcon: Icon(Icons.school_outlined),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../data/repositories/auth_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
@@ -17,10 +16,9 @@ class AuthController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   AuthController({
-    required AuthRepository authRepository,
-    required UserRepository userRepository,
-  }) : _authRepository = authRepository,
-       _userRepository = userRepository;
+    required this._authRepository,
+    required this._userRepository,
+  });
 
   void _setLoading(bool value) {
     _isLoading = value;
