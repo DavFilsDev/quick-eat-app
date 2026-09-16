@@ -16,38 +16,27 @@ class OrderProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentIndex = steps.indexOf(currentStatus);
 
+    if (steps.length < 2) return const SizedBox.shrink();
+
     return Row(
-      children: List.generate(steps.length, (index) {
-        final isCompleted =
-            index <= currentIndex && currentStatus != OrderStatus.annulee;
-        final isLast = index == steps.length - 1;
+      children: List.generate(steps.length - 1, (segmentIndex) {
+        final isFilled =
+            currentStatus != OrderStatus.annulee &&
+            currentIndex != -1 &&
+            segmentIndex <= currentIndex;
 
         return Expanded(
-          flex: isLast ? 0 : 1,
-          child: Row(
-            children: [
-              // Step dot
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: isCompleted ? AppColors.primary : Colors.grey[300],
-                  shape: BoxShape.circle,
-                ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: segmentIndex == steps.length - 2 ? 0 : 4,
+            ),
+            child: Container(
+              height: 8,
+              decoration: BoxDecoration(
+                color: isFilled ? AppColors.primary : Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(8),
               ),
-              // Connector line
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    height: 2,
-                    color:
-                        index < currentIndex &&
-                            currentStatus != OrderStatus.annulee
-                        ? AppColors.primary
-                        : Colors.grey[300],
-                  ),
-                ),
-            ],
+            ),
           ),
         );
       }),
