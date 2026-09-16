@@ -4,6 +4,7 @@ import '../../../../../core/constants/app_colors.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/order_model.dart';
+import '../../../../../models/order_item_model.dart';
 import '../../../../../models/user_model.dart';
 import '../controllers/merchant_orders_controller.dart';
 import '../widgets/order_progress_bar.dart';
@@ -129,24 +130,71 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Infos Client
+                // Client
                 const Text(
-                  'Client',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  'CLIENT',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Colors.grey,
+                    letterSpacing: 1,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 1,
                   child: ListTile(
-                    leading: const Icon(Icons.person),
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xFFFFDCB4),
+                      child: Text(
+                        _initials(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.brown,
+                        ),
+                      ),
+                    ),
                     title: Text(
                       _isLoadingStudent
                           ? 'Chargement...'
                           : (_student?.nomComplet ?? 'Inconnu'),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
                       order.typeReception == DeliveryType.livraison
                           ? 'Livraison : ${order.adresseLivraison ?? 'Non précisée'}'
-                          : 'Retrait sur place (Campus : ${_student?.campus ?? '...'})',
+                          : 'Campus ${_student?.campus ?? '...'}',
+                    ),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.verified_user,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Client vérifié',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -154,27 +202,61 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
 
                 // Plats
                 const Text(
-                  'Articles',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  'PLATS COMMANDÉS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Colors.grey,
+                    letterSpacing: 1,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Card(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: order.items.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      final item = order.items[index];
-                      return ListTile(
-                        title: Text(item.nom),
-                        trailing: Text('x${item.quantite}'),
-                        subtitle: Text(
-                          '${item.prixUnitaire.toStringAsFixed(0)} FCFA',
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.fastfood,
+                            color: Colors.deepOrange,
+                            size: 26,
+                          ),
                         ),
-                      );
-                    },
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _platsSummary(order.items),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${order.items.length} plat(s)',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -184,17 +266,14 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Total',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+                      'Total à encaisser',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       '${order.montantTotal.toStringAsFixed(0)} FCFA',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 22,
                         color: AppColors.primary,
                       ),
                     ),
@@ -270,5 +349,27 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
         );
       }
     }
+  }
+
+  String _initials() {
+    final s = _student;
+    if (s == null) return '?';
+    final parts = '${s.prenoms} ${s.nom}'
+        .trim()
+        .split(' ')
+        .where((p) => p.isNotEmpty)
+        .toList();
+    return ((parts.isNotEmpty ? parts.first[0] : '') +
+            (parts.length > 1 ? parts.last[0] : ''))
+        .toUpperCase();
+  }
+
+  String _platsSummary(List<OrderItemModel> items) {
+    if (items.isEmpty) return 'Commande';
+    final first = items.first;
+    final rest = items.length - 1;
+    return rest > 0
+        ? '${first.quantite}× ${first.nom} +${rest} autre(s)'
+        : '${first.quantite}× ${first.nom}';
   }
 }
