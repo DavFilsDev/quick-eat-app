@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../data/repositories/menu_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../routes/app_router.dart';
+import '../../../orders/presentation/student/widgets/create_order_modal.dart';
 import '../controllers/catalog_controller.dart';
 import '../widgets/category_filter_chip.dart';
 import '../widgets/food_card.dart';
@@ -144,7 +145,11 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       itemCount: plats.length,
                       itemBuilder: (context, index) {
                         final food = plats[index];
-                        return FoodCard(food: food, onCommander: () {});
+                        return FoodCard(
+                          food: food,
+                          onCommander: () =>
+                              CreateOrderModal.show(context, food: food),
+                        );
                       },
                     ),
                   const SizedBox(height: 24),

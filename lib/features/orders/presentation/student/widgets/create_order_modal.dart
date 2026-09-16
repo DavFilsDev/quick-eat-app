@@ -33,13 +33,13 @@ class CreateOrderModal extends StatefulWidget {
   /// haut dans l'arbre de widgets, avec un repli sur
   /// `FirestoreOrderRepository` sinon — à ajuster selon la façon dont le
   /// Lead a câblé les providers dans `app.dart`.
-  static Future<void> show(BuildContext context, {required FoodModel food}) {
+  static Future<bool> show(BuildContext context, {required FoodModel food}) {
     final controller = StudentOrdersController(
       orderRepository: _resolveOrderRepository(context),
       idEtudiant: FirebaseAuth.instance.currentUser?.uid ?? '',
     );
 
-    return showModalBottomSheet<void>(
+    return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
@@ -47,7 +47,7 @@ class CreateOrderModal extends StatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) => CreateOrderModal(food: food, controller: controller),
-    );
+    ).then((resultat) => resultat ?? false);
   }
 
   static OrderRepository _resolveOrderRepository(BuildContext context) {
@@ -88,7 +88,7 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
       quantite: _quantite,
     );
     if (!mounted) return;
-    if (succes) Navigator.of(context).pop();
+    if (succes) Navigator.of(context).pop(true);
   }
 
   @override
