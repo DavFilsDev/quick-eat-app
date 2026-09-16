@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_initializing_formals
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ void main() {
     );
   });
 
-  Future<void> _pumpModal(WidgetTester tester) {
+  Future<void> pumpModal(WidgetTester tester) {
     return tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -68,7 +69,7 @@ void main() {
   testWidgets(
     'Widget test modale : ouverture affiche le plat, le prix et la quantité initiale',
     (tester) async {
-      await _pumpModal(tester);
+      await pumpModal(tester);
 
       // Fermée au départ.
       expect(find.text('Riz sauce arachide'), findsNothing);
@@ -86,7 +87,7 @@ void main() {
   testWidgets(
     'Widget test modale : la croix ferme la modale sans créer de commande',
     (tester) async {
-      await _pumpModal(tester);
+      await pumpModal(tester);
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
 
@@ -101,15 +102,13 @@ void main() {
   testWidgets(
     'Test : calcul du montant total dans la modale (quantité × prix unitaire)',
     (tester) async {
-      await _pumpModal(tester);
+      await pumpModal(tester);
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
 
       // 1 × 2500 FCFA au départ.
       expect(
-        tester
-            .widget<Text>(find.byKey(const Key('valeur_montant_total')))
-            .data,
+        tester.widget<Text>(find.byKey(const Key('valeur_montant_total'))).data,
         _currency(2500),
       );
 
@@ -121,9 +120,7 @@ void main() {
       // 3 × 2500 FCFA après deux incréments.
       expect(find.text('3'), findsOneWidget);
       expect(
-        tester
-            .widget<Text>(find.byKey(const Key('valeur_montant_total')))
-            .data,
+        tester.widget<Text>(find.byKey(const Key('valeur_montant_total'))).data,
         _currency(7500),
       );
 
@@ -133,9 +130,7 @@ void main() {
       // Retour à 2 × 2500 FCFA après un décrément.
       expect(find.text('2'), findsOneWidget);
       expect(
-        tester
-            .widget<Text>(find.byKey(const Key('valeur_montant_total')))
-            .data,
+        tester.widget<Text>(find.byKey(const Key('valeur_montant_total'))).data,
         _currency(5000),
       );
     },
@@ -147,11 +142,10 @@ void main() {
     'paramètres puis ferme la modale au succès',
     (tester) async {
       final completer = Completer<String>();
-      when(
-        () => mockRepository.creerCommande(any()),
-      ).thenAnswer((_) => completer.future);
+      when(() => mockRepository.creerCommande(any()))
+          .thenAnswer((_) => completer.future);
 
-      await _pumpModal(tester);
+      await pumpModal(tester);
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
 
@@ -179,7 +173,8 @@ void main() {
       await tester.pumpAndSettle();
 
       final captured =
-          verify(() => mockRepository.creerCommande(captureAny())).captured
+          verify(() => mockRepository.creerCommande(captureAny()))
+                  .captured
                   .single
               as OrderModel;
 
@@ -198,11 +193,10 @@ void main() {
     "Widget test modale : en cas d'échec, un message d'erreur s'affiche et "
     'la modale reste ouverte',
     (tester) async {
-      when(
-        () => mockRepository.creerCommande(any()),
-      ).thenThrow(Exception('network error'));
+      when(() => mockRepository.creerCommande(any()))
+          .thenThrow(Exception('network error'));
 
-      await _pumpModal(tester);
+      await pumpModal(tester);
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
 
@@ -210,10 +204,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Riz sauce arachide'), findsOneWidget);
-      expect(
-        find.text('Une erreur est survenue. Réessayez.'),
-        findsOneWidget,
-      );
+      expect(find.text('Une erreur est survenue. Réessayez.'), findsOneWidget);
     },
   );
 }

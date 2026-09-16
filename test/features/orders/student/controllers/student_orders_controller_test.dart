@@ -34,9 +34,8 @@ void main() {
   setUp(() {
     mockRepository = MockOrderRepository();
     streamController = StreamController<List<OrderModel>>();
-    when(
-      () => mockRepository.streamCommandesEtudiant(any()),
-    ).thenAnswer((_) => streamController.stream);
+    when(() => mockRepository.streamCommandesEtudiant(any()))
+        .thenAnswer((_) => streamController.stream);
 
     controller = StudentOrdersController(
       orderRepository: mockRepository,
@@ -50,27 +49,29 @@ void main() {
   });
 
   group('startListening', () {
-    test('démarre en loading puis passe à success avec les commandes',
-        () async {
-      controller.startListening();
-      expect(controller.status, StudentOrdersStatus.loading);
+    test(
+      'démarre en loading puis passe à success avec les commandes',
+      () async {
+        controller.startListening();
+        expect(controller.status, StudentOrdersStatus.loading);
 
-      final commandes = [
-        OrderModel(
-          idCommande: 'c1',
-          idEtudiant: 'etu1',
-          idCommercant: 'com1',
-          dateCommande: DateTime.now(),
-          montantTotal: 2500,
-          typeReception: DeliveryType.retrait,
-        ),
-      ];
-      streamController.add(commandes);
-      await Future<void>.delayed(Duration.zero);
+        final commandes = [
+          OrderModel(
+            idCommande: 'c1',
+            idEtudiant: 'etu1',
+            idCommercant: 'com1',
+            dateCommande: DateTime.now(),
+            montantTotal: 2500,
+            typeReception: DeliveryType.retrait,
+          ),
+        ];
+        streamController.add(commandes);
+        await Future<void>.delayed(Duration.zero);
 
-      expect(controller.status, StudentOrdersStatus.success);
-      expect(controller.orders, commandes);
-    });
+        expect(controller.status, StudentOrdersStatus.success);
+        expect(controller.orders, commandes);
+      },
+    );
 
     test('passe à error si le stream échoue', () async {
       controller.startListening();
@@ -99,9 +100,8 @@ void main() {
     test(
       'retourne true et appelle le repository avec la commande attendue',
       () async {
-        when(
-          () => mockRepository.creerCommande(any()),
-        ).thenAnswer((_) async => 'cmd123');
+        when(() => mockRepository.creerCommande(any()))
+            .thenAnswer((_) async => 'cmd123');
 
         final resultat = await controller.creerCommande(
           food: food,
@@ -114,7 +114,8 @@ void main() {
         expect(controller.creationErrorMessage, isNull);
 
         final captured =
-            verify(() => mockRepository.creerCommande(captureAny())).captured
+            verify(() => mockRepository.creerCommande(captureAny()))
+                    .captured
                     .single
                 as OrderModel;
         expect(captured.montantTotal, 7500); // 3 × 2500
@@ -127,9 +128,9 @@ void main() {
     test(
       'retourne false et renseigne un message en cas de FirebaseException',
       () async {
-        when(() => mockRepository.creerCommande(any())).thenThrow(
-          FirebaseException(plugin: 'firestore', message: 'denied'),
-        );
+        when(
+          () => mockRepository.creerCommande(any()),
+        ).thenThrow(FirebaseException(plugin: 'firestore', message: 'denied'));
 
         final resultat = await controller.creerCommande(
           food: food,
@@ -145,47 +146,41 @@ void main() {
 
   group('annulerCommande', () {
     test('retourne true si le repository confirme', () async {
-      when(
-        () => mockRepository.annulerCommande(any()),
-      ).thenAnswer((_) async {});
+      when(() => mockRepository.annulerCommande(any()))
+          .thenAnswer((_) async {});
 
       final resultat = await controller.annulerCommande('c1');
 
       expect(resultat, isTrue);
     });
 
-    test(
-      'retourne false avec le message métier si InvalidOrderTransition',
-      () async {
-        when(() => mockRepository.annulerCommande(any())).thenThrow(
-          const InvalidOrderTransition(
-            'Cette commande ne peut plus être annulée (préparation déjà lancée).',
-          ),
-        );
-
-        final resultat = await controller.annulerCommande('c1');
-
-        expect(resultat, isFalse);
-        expect(
-          controller.errorMessage,
+    test('retourne false avec le message métier si InvalidOrderTransition', () async {
+      when(() => mockRepository.annulerCommande(any())).thenThrow(
+        const InvalidOrderTransition(
           'Cette commande ne peut plus être annulée (préparation déjà lancée).',
-        );
-      },
-    );
+        ),
+      );
+
+      final resultat = await controller.annulerCommande('c1');
+
+      expect(resultat, isFalse);
+      expect(
+        controller.errorMessage,
+        'Cette commande ne peut plus être annulée (préparation déjà lancée).',
+      );
+    });
   });
 
   group('confirmerReception', () {
     test('appelle mettreAJourStatut avec OrderStatus.livree', () async {
-      when(
-        () => mockRepository.mettreAJourStatut(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => mockRepository.mettreAJourStatut(any(), any()))
+          .thenAnswer((_) async {});
 
       final resultat = await controller.confirmerReception('c1');
 
       expect(resultat, isTrue);
-      verify(
-        () => mockRepository.mettreAJourStatut('c1', OrderStatus.livree),
-      ).called(1);
+      verify(() => mockRepository.mettreAJourStatut('c1', OrderStatus.livree))
+          .called(1);
     });
   });
 }

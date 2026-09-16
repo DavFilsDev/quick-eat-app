@@ -33,8 +33,9 @@ class StudentOrdersController extends ChangeNotifier {
   StudentOrdersController({
     required OrderRepository orderRepository,
     required String idEtudiant,
-  }) : this._orderRepository = orderRepository,
-       this._idEtudiant = idEtudiant;
+  }) : this._(orderRepository, idEtudiant);
+
+  StudentOrdersController._(this._orderRepository, this._idEtudiant);
 
   final OrderRepository _orderRepository;
   final String _idEtudiant;

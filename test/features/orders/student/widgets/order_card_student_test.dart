@@ -76,52 +76,48 @@ void main() {
   });
 
   group('Test : bouton "Confirmer la réception"', () {
-    testWidgets(
-      "n'apparaît que pour LIVRAISON + EN_COURS_DE_LIVRAISON",
-      (tester) async {
-        // Cas positif.
-        await _pump(
-          tester,
-          _commande(
-            statut: OrderStatus.enCoursDeLivraison,
-            typeReception: DeliveryType.livraison,
-          ),
-        );
-        expect(
-          find.byKey(const Key('bouton_confirmer_reception')),
-          findsOneWidget,
-        );
+    testWidgets("n'apparaît que pour LIVRAISON + EN_COURS_DE_LIVRAISON", (
+      tester,
+    ) async {
+      // Cas positif.
+      await _pump(
+        tester,
+        _commande(
+          statut: OrderStatus.enCoursDeLivraison,
+          typeReception: DeliveryType.livraison,
+        ),
+      );
+      expect(
+        find.byKey(const Key('bouton_confirmer_reception')),
+        findsOneWidget,
+      );
 
-        // Même statut mais RETRAIT : le commerçant confirme, pas l'étudiant.
+      // Même statut mais RETRAIT : le commerçant confirme, pas l'étudiant.
+      await _pump(
+        tester,
+        _commande(
+          statut: OrderStatus.enCoursDeLivraison,
+          typeReception: DeliveryType.retrait,
+        ),
+      );
+      expect(find.byKey(const Key('bouton_confirmer_reception')), findsNothing);
+
+      // LIVRAISON mais mauvais statut.
+      for (final statut in OrderStatus.values.where(
+        (s) => s != OrderStatus.enCoursDeLivraison,
+      )) {
         await _pump(
           tester,
-          _commande(
-            statut: OrderStatus.enCoursDeLivraison,
-            typeReception: DeliveryType.retrait,
-          ),
+          _commande(statut: statut, typeReception: DeliveryType.livraison),
         );
         expect(
           find.byKey(const Key('bouton_confirmer_reception')),
           findsNothing,
+          reason:
+              'Le bouton Confirmer la réception ne doit pas apparaître pour $statut',
         );
-
-        // LIVRAISON mais mauvais statut.
-        for (final statut in OrderStatus.values.where(
-          (s) => s != OrderStatus.enCoursDeLivraison,
-        )) {
-          await _pump(
-            tester,
-            _commande(statut: statut, typeReception: DeliveryType.livraison),
-          );
-          expect(
-            find.byKey(const Key('bouton_confirmer_reception')),
-            findsNothing,
-            reason:
-                'Le bouton Confirmer la réception ne doit pas apparaître pour $statut',
-          );
-        }
-      },
-    );
+      }
+    });
   });
 
   testWidgets(
@@ -138,10 +134,7 @@ void main() {
       expect(find.text('Terminé (Prêt à récupérer)'), findsOneWidget);
       // Rappel de la règle métier : aucune action pour l'étudiant ici,
       // c'est le commerçant qui confirme RECU à la remise physique.
-      expect(
-        find.byKey(const Key('bouton_confirmer_reception')),
-        findsNothing,
-      );
+      expect(find.byKey(const Key('bouton_confirmer_reception')), findsNothing);
       expect(find.byKey(const Key('bouton_annuler_commande')), findsNothing);
     },
   );
