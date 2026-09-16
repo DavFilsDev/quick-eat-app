@@ -32,6 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
+    _passwordController.addListener(() => setState(() {}));
     _authController = AuthController(
       authRepository: FirebaseAuthRepository(),
       userRepository: FirestoreUserRepository(),
@@ -65,6 +66,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
     }
+  }
+
+  int get _passwordStrength {
+    final p = _passwordController.text;
+    if (p.isEmpty) return 0;
+    if (p.length < 6) return 1;
+    final hasDigits = p.contains(RegExp(r'[0-9]'));
+    final hasUpperOrSpecial = p.contains(RegExp(r'[A-Z!@#$%^&*(),.?":{}|<>]'));
+    if (p.length >= 8 && hasDigits && hasUpperOrSpecial) return 3;
+    return 2;
+  }
+
+  Widget _buildPasswordStrengthIndicator() {
+    final strength = _passwordStrength;
+    if (strength == 0) return const SizedBox.shrink();
+
+    final labels = ['', 'Faible', 'Moyen', 'Fort'];
+    final colors = [
+      Colors.grey.shade300,
+      Colors.red,
+      Colors.orange,
+      Colors.green,
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        children: [
+          for (int i = 1; i <= 3; i++) ...[
+            Expanded(
+              child: Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  color: i <= strength
+                      ? colors[strength]
+                      : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            if (i < 3) const SizedBox(width: 6),
+          ],
+          const SizedBox(width: 12),
+          Text(
+            labels[strength],
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: colors[strength],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -206,6 +261,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ? 'Min. 6 caractères'
                         : null,
                   ),
+                  _buildPasswordStrengthIndicator(),
                   const SizedBox(height: 24),
                   SizedBox(
                     height: 48,
