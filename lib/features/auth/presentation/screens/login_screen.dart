@@ -1,4 +1,3 @@
-// login_screen.dart (version lisible et accessible)
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -69,116 +68,139 @@ class _LoginScreenState extends State<LoginScreen> {
     final isLoading = _authController.isLoading;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('QuickEat - Connexion'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
-              AuthTextField(
-                controller: _emailController,
-                label: 'Email',
-                prefixIcon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                validator: (val) => (val == null || !val.contains('@'))
-                    ? 'Email invalide'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              AuthTextField(
-                controller: _passwordController,
-                label: 'Mot de passe',
-                prefixIcon: Icons.lock_outline,
-                obscureText: _obscurePassword,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+      backgroundColor: const Color(0xFFF8F9FC),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // En-tête Figma
+                  Text(
+                    'QuickEat',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  onPressed: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
-                ),
-                validator: (val) => (val == null || val.length < 6)
-                    ? 'Mot de passe trop court'
-                    : null,
-              ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Bon retour parmi nous ! 👋',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Connecte-toi pour commander ton repas sur le campus.',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
 
-              // Lien mot de passe oublié avec pointeur
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerRight,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: TextButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Saisissez votre email pour réinitialiser le mot de passe.',
+                  // Champs de saisie
+                  AuthTextField(
+                    controller: _emailController,
+                    label: 'Adresse email',
+                    prefixIcon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (val) => (val == null || !val.contains('@'))
+                        ? 'Email invalide'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  AuthTextField(
+                    controller: _passwordController,
+                    label: 'Mot de passe',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: _obscurePassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    validator: (val) => (val == null || val.length < 6)
+                        ? 'Mot de passe trop court'
+                        : null,
+                  ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Saisissez votre email pour réinitialiser.',
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: const Text('Mot de passe oublié ?'),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                        );
+                      },
+                      child: const Text('Mot de passe oublié ?'),
                     ),
                   ),
-                  onPressed: isLoading ? null : _submitForm,
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Se connecter',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Pas encore de compte ? '),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () =>
-                          Navigator.of(context).pushNamed(AppRouter.register),
-                      child: Text(
-                        "S'inscrire",
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(height: 24),
+
+                  // Bouton Se connecter
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+                      onPressed: isLoading ? null : _submitForm,
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Se connecter',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Pas encore de compte ? '),
+                      GestureDetector(
+                        onTap: () =>
+                            Navigator.of(context).pushNamed(AppRouter.register),
+                        child: Text(
+                          "S'inscrire",
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
