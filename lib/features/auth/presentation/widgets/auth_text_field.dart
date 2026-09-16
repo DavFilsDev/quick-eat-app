@@ -14,7 +14,7 @@ class AuthTextField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.label,
-    this.prefixIcon, // Plus de 'required' ici
+    this.prefixIcon, // Plus de 'required'
     this.hintText,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
