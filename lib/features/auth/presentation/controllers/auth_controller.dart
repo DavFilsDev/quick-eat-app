@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../data/repositories/auth_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
@@ -30,6 +31,30 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _mapFirebaseError(dynamic e) {
+    if (e is FirebaseAuthException) {
+      switch (e.code) {
+        case 'user-not-found':
+        case 'wrong-password':
+        case 'invalid-credential':
+          return 'Email ou mot de passe incorrect.';
+        case 'email-already-in-use':
+          return 'Cet email est déjà utilisé par un autre compte.';
+        case 'invalid-email':
+          return 'Adresse email invalide.';
+        case 'weak-password':
+          return 'Mot de passe trop faible (minimum 6 caractères).';
+        case 'network-request-failed':
+          return 'Connexion réseau impossible. Vérifiez votre accès Internet.';
+        case 'too-many-requests':
+          return 'Trop de tentatives échouées. Réessayez dans un moment.';
+        default:
+          return e.message ?? 'Une erreur d\'authentification est survenue.';
+      }
+    }
+    return 'Une erreur inattendue est survenue. Veuillez réessayer.';
+  }
+
   Future<bool> login(String email, String password) async {
     _setLoading(true);
     _clearError();
@@ -38,7 +63,7 @@ class AuthController extends ChangeNotifier {
       _setLoading(false);
       return true;
     } catch (e) {
-      _errorMessage = "Identifiants invalides ou problème réseau.";
+      _errorMessage = _mapFirebaseError(e);
       _setLoading(false);
       return false;
     }
@@ -78,7 +103,7 @@ class AuthController extends ChangeNotifier {
       _setLoading(false);
       return true;
     } catch (e) {
-      _errorMessage = "Erreur lors de l'inscription. Veuillez réessayer.";
+      _errorMessage = _mapFirebaseError(e);
       _setLoading(false);
       return false;
     }
