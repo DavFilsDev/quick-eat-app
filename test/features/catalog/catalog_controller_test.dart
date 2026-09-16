@@ -22,12 +22,10 @@ void main() {
       streamController = StreamController<List<FoodModel>>();
       mockMenuRepository = MockMenuRepository();
       mockUserRepository = MockUserRepository();
-      when(
-        () => mockMenuRepository.streamMenus(),
-      ).thenAnswer((_) => streamController.stream);
-      when(
-        () => mockUserRepository.obtenirUtilisateur(any()),
-      ).thenAnswer((_) => Future.value(null));
+      when(() => mockMenuRepository.streamMenus())
+          .thenAnswer((_) => streamController.stream);
+      when(() => mockUserRepository.obtenirUtilisateur(any()))
+          .thenAnswer((_) => Future.value(null));
       controller = CatalogController(
         menuRepository: mockMenuRepository,
         userRepository: mockUserRepository,

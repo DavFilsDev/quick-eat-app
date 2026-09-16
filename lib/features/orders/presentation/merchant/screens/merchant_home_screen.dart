@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/utils/time_ago_formatter.dart';
 import '../../../../../routes/app_router.dart';
@@ -145,8 +146,7 @@ class MerchantHomeScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         // Nom client
                         Text(
-                          order
-                              .idEtudiant, // Remplacé par le nom résolu ou placeholder
+                          order.idEtudiant, // Remplacé par le nom résolu ou placeholder
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,

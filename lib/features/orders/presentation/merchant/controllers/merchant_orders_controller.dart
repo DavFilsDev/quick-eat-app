@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+
 import '../../../../../data/repositories/order_repository.dart';
 import '../../../../../data/repositories/user_repository.dart';
 import '../../../../../models/enums/order_status.dart';
@@ -17,12 +19,10 @@ class MerchantOrdersController extends ChangeNotifier {
   String? _errorMessage;
 
   MerchantOrdersController({
-    required OrderRepository orderRepository,
-    required UserRepository userRepository,
-    required String merchantId,
-  }) : _orderRepository = orderRepository,
-       _userRepository = userRepository,
-       _merchantId = merchantId {
+    required this._orderRepository,
+    required this._userRepository,
+    required this._merchantId,
+  }) {
     _init();
   }
 

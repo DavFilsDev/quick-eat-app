@@ -47,9 +47,8 @@ void main() {
         typeReception: DeliveryType.retrait,
       );
 
-      when(
-        () => mockOrderRepository.streamCommandesCommercant(merchantId),
-      ).thenAnswer((_) => Stream.value([o2, o1]));
+      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+          .thenAnswer((_) => Stream.value([o2, o1]));
 
       controller = MerchantOrdersController(
         orderRepository: mockOrderRepository,
@@ -78,9 +77,8 @@ void main() {
         statut: OrderStatus.enAttente,
       );
 
-      when(
-        () => mockOrderRepository.streamCommandesCommercant(merchantId),
-      ).thenAnswer((_) => Stream.value([order]));
+      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+          .thenAnswer((_) => Stream.value([order]));
       when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
         (_) => Future.value(
           const UserModel(
@@ -129,9 +127,8 @@ void main() {
           statut: OrderStatus.enCoursDeLivraison,
         );
 
-        when(
-          () => mockOrderRepository.streamCommandesCommercant(merchantId),
-        ).thenAnswer((_) => Stream.value([order]));
+        when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+            .thenAnswer((_) => Stream.value([order]));
         when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
           (_) => Future.value(
             const UserModel(
@@ -180,9 +177,8 @@ void main() {
           statut: OrderStatus.terminee,
         );
 
-        when(
-          () => mockOrderRepository.streamCommandesCommercant(merchantId),
-        ).thenAnswer((_) => Stream.value([order]));
+        when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+            .thenAnswer((_) => Stream.value([order]));
         when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
           (_) => Future.value(
             const UserModel(
