@@ -122,151 +122,160 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
               top: 20,
               bottom: MediaQuery.of(context).viewInsets.bottom + 20,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Confirmer votre commande',
+            // Scroll intérieur : le contenu (mode de réception, quantité,
+            // total, bouton) est plus grand que la hauteur disponible quand
+            // la modale est ouverte sur un petit écran avec le clavier
+            // (maquette `Modal Commande` + `isScrollControlled`). Sans
+            // `SingleChildScrollView`, le `Column` déborde (RenderFlex
+            // overflow) et les boutons du bas deviennent hors d'atteinte.
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Confirmer votre commande',
+                          style: AppTextStyles.heading1,
+                        ),
+                      ),
+                      IconButton(
+                        key: const Key('bouton_fermer_modale'),
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    "${widget.food.nom} (${currency.format(widget.food.prix)} l'unité)",
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text('Mode de réception', style: AppTextStyles.heading2),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ModeReceptionCard(
+                          key: const Key('choix_livraison'),
+                          icon: Icons.two_wheeler,
+                          label: 'Livraison',
+                          selectionnee:
+                              _typeReception == DeliveryType.livraison,
+                          onTap: () => setState(
+                            () => _typeReception = DeliveryType.livraison,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ModeReceptionCard(
+                          key: const Key('choix_retrait'),
+                          icon: Icons.storefront,
+                          label: 'À récupérer sur place',
+                          selectionnee: _typeReception == DeliveryType.retrait,
+                          onTap: () => setState(
+                            () => _typeReception = DeliveryType.retrait,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text('Quantité', style: AppTextStyles.heading2),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      _BoutonQuantite(
+                        key: const Key('bouton_decrementer_quantite'),
+                        icon: Icons.remove,
+                        onTap: _quantite > _quantiteMin ? _decrementer : null,
+                      ),
+                      const SizedBox(width: 24),
+                      Text(
+                        '$_quantite',
+                        key: const Key('valeur_quantite'),
                         style: AppTextStyles.heading1,
                       ),
-                    ),
-                    IconButton(
-                      key: const Key('bouton_fermer_modale'),
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                Text(
-                  "${widget.food.nom} (${currency.format(widget.food.prix)} l'unité)",
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textSecondary,
+                      const SizedBox(width: 24),
+                      _BoutonQuantite(
+                        key: const Key('bouton_incrementer_quantite'),
+                        icon: Icons.add,
+                        onTap: _quantite < _quantiteMax ? _incrementer : null,
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                Text('Mode de réception', style: AppTextStyles.heading2),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ModeReceptionCard(
-                        key: const Key('choix_livraison'),
-                        icon: Icons.two_wheeler,
-                        label: 'Livraison',
-                        selectionnee: _typeReception == DeliveryType.livraison,
-                        onTap: () => setState(
-                          () => _typeReception = DeliveryType.livraison,
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Montant total', style: AppTextStyles.heading2),
+                      Text(
+                        currency.format(_montantTotal),
+                        key: const Key('valeur_montant_total'),
+                        style: AppTextStyles.price,
+                      ),
+                    ],
+                  ),
+                  if (erreur != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      erreur,
+                      style: const TextStyle(color: AppColors.statusCancelled),
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      key: const Key('bouton_confirmer_commande'),
+                      onPressed: isSubmitting ? null : _confirmer,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _ModeReceptionCard(
-                        key: const Key('choix_retrait'),
-                        icon: Icons.storefront,
-                        label: 'À récupérer sur place',
-                        selectionnee: _typeReception == DeliveryType.retrait,
-                        onTap: () => setState(
-                          () => _typeReception = DeliveryType.retrait,
-                        ),
+                      icon: isSubmitting
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.check_circle_outline),
+                      label: Text(
+                        isSubmitting
+                            ? 'Envoi en cours...'
+                            : 'Valider la commande',
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Text('Quantité', style: AppTextStyles.heading2),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    _BoutonQuantite(
-                      key: const Key('bouton_decrementer_quantite'),
-                      icon: Icons.remove,
-                      onTap: _quantite > _quantiteMin ? _decrementer : null,
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      key: const Key('bouton_annuler_modale'),
+                      onPressed: isSubmitting
+                          ? null
+                          : () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.textSecondary,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('Annuler'),
                     ),
-                    const SizedBox(width: 24),
-                    Text(
-                      '$_quantite',
-                      key: const Key('valeur_quantite'),
-                      style: AppTextStyles.heading1,
-                    ),
-                    const SizedBox(width: 24),
-                    _BoutonQuantite(
-                      key: const Key('bouton_incrementer_quantite'),
-                      icon: Icons.add,
-                      onTap: _quantite < _quantiteMax ? _incrementer : null,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Montant total', style: AppTextStyles.heading2),
-                    Text(
-                      currency.format(_montantTotal),
-                      key: const Key('valeur_montant_total'),
-                      style: AppTextStyles.price,
-                    ),
-                  ],
-                ),
-                if (erreur != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    erreur,
-                    style: const TextStyle(color: AppColors.statusCancelled),
                   ),
                 ],
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    key: const Key('bouton_confirmer_commande'),
-                    onPressed: isSubmitting ? null : _confirmer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: isSubmitting
-                        ? const SizedBox(
-                            height: 18,
-                            width: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.check_circle_outline),
-                    label: Text(
-                      isSubmitting
-                          ? 'Envoi en cours...'
-                          : 'Valider la commande',
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    key: const Key('bouton_annuler_modale'),
-                    onPressed: isSubmitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textSecondary,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Annuler'),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         );

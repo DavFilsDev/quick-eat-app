@@ -48,6 +48,16 @@ void main() {
   });
 
   Future<void> pumpModal(WidgetTester tester) {
+    // Surface de test élargie (800 × 1200) : le `SingleChildScrollView` de la
+    // modale rend le contenu scrollable, mais les tests qui tapent sur les
+    // boutons de quantité et le bouton de confirmation ont besoin que tout le
+    // contenu soit visible (motif `scroll jusqu'à l'élément hors écran`).
+    // Sans cette surface, `tester.tap` échoue : offset en dehors des bornes
+    // (800 × 600) → « would not hit test on the specified widget ».
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     return tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -72,14 +82,14 @@ void main() {
       await pumpModal(tester);
 
       // Fermée au départ.
-      expect(find.text('Riz sauce arachide'), findsNothing);
+      expect(find.textContaining('Riz sauce arachide'), findsNothing);
 
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
 
       // Ouverture : contenu affiché.
       expect(find.text('Confirmer votre commande'), findsOneWidget);
-      expect(find.text('Riz sauce arachide'), findsOneWidget);
+      expect(find.textContaining('Riz sauce arachide'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
     },
   );
@@ -94,7 +104,7 @@ void main() {
       await tester.tap(find.byKey(const Key('bouton_fermer_modale')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Riz sauce arachide'), findsNothing);
+      expect(find.textContaining('Riz sauce arachide'), findsNothing);
       verifyNever(() => mockRepository.creerCommande(any()));
     },
   );
@@ -185,7 +195,7 @@ void main() {
       expect(captured.montantTotal, 5000);
 
       // Fermeture : la modale n'est plus affichée.
-      expect(find.text('Riz sauce arachide'), findsNothing);
+      expect(find.textContaining('Riz sauce arachide'), findsNothing);
     },
   );
 
@@ -203,7 +213,7 @@ void main() {
       await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Riz sauce arachide'), findsOneWidget);
+      expect(find.textContaining('Riz sauce arachide'), findsOneWidget);
       expect(find.text('Une erreur est survenue. Réessayez.'), findsOneWidget);
     },
   );
