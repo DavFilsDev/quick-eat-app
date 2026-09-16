@@ -7,6 +7,7 @@ import '../../../../models/enums/user_role.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/role_toggle.dart';
+import '../../domain/role_detector.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,6 +34,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(() => setState(() {}));
+    _emailController.addListener(() {
+      final suggestedRole = RoleDetector.detectFromEmail(_emailController.text);
+      if (suggestedRole != null && suggestedRole != _role) {
+        setState(() => _role = suggestedRole);
+      }
+    });
     _authController = AuthController(
       authRepository: FirebaseAuthRepository(),
       userRepository: FirestoreUserRepository(),
@@ -45,13 +52,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _creerCompte() async {
     if (!_formKey.currentState!.validate()) return;
+    final fullPhone =
+        '$_selectedCountryCode${_telephoneController.text.trim()}';
 
     final success = await _authController.register(
       email: _emailController.text.trim(),
       password: _passwordController.text,
       nom: _nomController.text.trim(),
       prenoms: _prenomsController.text.trim(),
-      telephone: _telephoneController.text.trim(),
+      telephone: fullPhone,
       campus: _campusSelectionne ?? 'Campus UAC - Abomey-Calavi',
       role: _role,
     );
@@ -121,6 +130,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+
+  final List<Map<String, String>> _countryCodes = [
+    {'code': '+229', 'flag': '🇧🇯', 'label': '🇧🇯 +229'},
+    {'code': '+237', 'flag': '🇨🇲', 'label': '🇨🇲 +237'},
+    {'code': '+261', 'flag': '🇲🇬', 'label': '🇲🇬 +261'},
+    {'code': '+33', 'flag': '🇫🇷', 'label': '🇫🇷 +33'},
+  ];
+  String _selectedCountryCode = '+261';
 
   @override
   void dispose() {
@@ -196,14 +213,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         (val == null || val.isEmpty) ? 'Prénom requis' : null,
                   ),
                   const SizedBox(height: 14),
-                  AuthTextField(
-                    controller: _telephoneController,
-                    label: 'Téléphone',
-                    prefixIcon: Icons.phone_outlined,
-                    keyboardType: TextInputType.phone,
-                    validator: (val) => (val == null || val.isEmpty)
-                        ? 'Téléphone requis'
-                        : null,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Dropdown pour l'indicatif pays
+                      Container(
+                        height: 56,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade400),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedCountryCode,
+                            items: _countryCodes.map((country) {
+                              return DropdownMenuItem<String>(
+                                value: country['code'],
+                                child: Text(
+                                  country['label']!,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() => _selectedCountryCode = val);
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Champ numéro local
+                      Expanded(
+                        child: AuthTextField(
+                          controller: _telephoneController,
+                          label: 'Téléphone',
+                          prefixIcon: Icons.phone_outlined,
+                          keyboardType: TextInputType.phone,
+                          validator: (val) {
+                            if (val == null || val.trim().isEmpty) {
+                              return 'Téléphone requis';
+                            }
+                            final clean = val.trim().replaceAll(
+                              RegExp(r'\s+'),
+                              '',
+                            );
+                            if (!RegExp(r'^\d{8,10}$').hasMatch(clean)) {
+                              return 'Numéro invalide';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
