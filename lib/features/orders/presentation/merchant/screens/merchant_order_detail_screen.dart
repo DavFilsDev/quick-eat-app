@@ -14,7 +14,8 @@ class MerchantOrderDetailScreen extends StatefulWidget {
   const MerchantOrderDetailScreen({super.key, required this.idCommande});
 
   @override
-  State<MerchantOrderDetailScreen> createState() => _MerchantOrderDetailScreenState();
+  State<MerchantOrderDetailScreen> createState() =>
+      _MerchantOrderDetailScreenState();
 }
 
 class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
@@ -30,13 +31,15 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
 
   Future<void> _fetchStudentInfo() async {
     if (_isFetching || !mounted) return;
-    
+
     final controller = context.read<MerchantOrdersController>();
     final orders = controller.orders;
-    
-    final orderIndex = orders.indexWhere((o) => o.idCommande == widget.idCommande);
+
+    final orderIndex = orders.indexWhere(
+      (o) => o.idCommande == widget.idCommande,
+    );
     if (orderIndex == -1) return;
-    
+
     _isFetching = true;
     final order = orders[orderIndex];
 
@@ -60,16 +63,20 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
       body: Consumer<MerchantOrdersController>(
         builder: (context, controller, child) {
           final orders = controller.orders;
-          final orderIndex = orders.indexWhere((o) => o.idCommande == widget.idCommande);
-          
+          final orderIndex = orders.indexWhere(
+            (o) => o.idCommande == widget.idCommande,
+          );
+
           if (orderIndex == -1) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (_isLoadingStudent && _student == null && !_isFetching) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _fetchStudentInfo());
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _fetchStudentInfo(),
+            );
           }
-          
+
           final order = orders[orderIndex];
 
           final steps = [OrderStatus.enAttente, ...order.statutsMarchand];
@@ -92,18 +99,29 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 16),
-                        OrderProgressBar(currentStatus: order.statut, steps: steps),
+                        OrderProgressBar(
+                          currentStatus: order.statut,
+                          steps: steps,
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: steps.map((s) => Text(
-                            s.label,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: order.statut == s ? AppColors.primary : Colors.grey,
-                              fontWeight: order.statut == s ? FontWeight.bold : FontWeight.normal,
-                            ),
-                          )).toList(),
+                          children: steps
+                              .map(
+                                (s) => Text(
+                                  s.label,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: order.statut == s
+                                        ? AppColors.primary
+                                        : Colors.grey,
+                                    fontWeight: order.statut == s
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                       ],
                     ),
@@ -112,12 +130,19 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                 const SizedBox(height: 20),
 
                 // Infos Client
-                const Text('Client', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  'Client',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 8),
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.person),
-                    title: Text(_isLoadingStudent ? 'Chargement...' : (_student?.nomComplet ?? 'Inconnu')),
+                    title: Text(
+                      _isLoadingStudent
+                          ? 'Chargement...'
+                          : (_student?.nomComplet ?? 'Inconnu'),
+                    ),
                     subtitle: Text(
                       order.typeReception == DeliveryType.livraison
                           ? 'Livraison : ${order.adresseLivraison ?? 'Non précisée'}'
@@ -128,20 +153,26 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                 const SizedBox(height: 20),
 
                 // Plats
-                const Text('Articles', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  'Articles',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 8),
                 Card(
                   child: ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: order.items.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final item = order.items[index];
                       return ListTile(
                         title: Text(item.nom),
                         trailing: Text('x${item.quantite}'),
-                        subtitle: Text('${item.prixUnitaire.toStringAsFixed(0)} FCFA'),
+                        subtitle: Text(
+                          '${item.prixUnitaire.toStringAsFixed(0)} FCFA',
+                        ),
                       );
                     },
                   ),
@@ -152,7 +183,13 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    const Text(
+                      'Total',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                     Text(
                       '${order.montantTotal.toStringAsFixed(0)} FCFA',
                       style: const TextStyle(
@@ -171,7 +208,8 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () => _updateStatus(context, order.idCommande, nextStatus),
+                      onPressed: () =>
+                          _updateStatus(context, order.idCommande, nextStatus),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -188,12 +226,14 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
   }
 
   OrderStatus? _getNextStatus(OrderModel order) {
-    if (order.statut == OrderStatus.annulee || order.statut == OrderStatus.recu || order.statut == OrderStatus.livree) {
+    if (order.statut == OrderStatus.annulee ||
+        order.statut == OrderStatus.recu ||
+        order.statut == OrderStatus.livree) {
       return null;
     }
 
     final merchantSteps = order.statutsMarchand;
-    
+
     if (order.statut == OrderStatus.enAttente) {
       return merchantSteps.first;
     }
@@ -213,11 +253,18 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
     return next;
   }
 
-  Future<void> _updateStatus(BuildContext context, String orderId, OrderStatus nextStatus) async {
+  Future<void> _updateStatus(
+    BuildContext context,
+    String orderId,
+    OrderStatus nextStatus,
+  ) async {
     try {
-      await context.read<MerchantOrdersController>().updateOrderStatus(orderId, nextStatus);
+      await context.read<MerchantOrdersController>().updateOrderStatus(
+        orderId,
+        nextStatus,
+      );
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur : $e'), backgroundColor: Colors.red),
         );

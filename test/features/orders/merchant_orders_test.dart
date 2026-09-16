@@ -13,6 +13,7 @@ import 'package:quickeat/models/order_model.dart';
 import 'package:quickeat/models/user_model.dart';
 
 class MockOrderRepository extends Mock implements OrderRepository {}
+
 class MockUserRepository extends Mock implements UserRepository {}
 
 void main() {
@@ -46,8 +47,9 @@ void main() {
         typeReception: DeliveryType.retrait,
       );
 
-      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
-          .thenAnswer((_) => Stream.value([o2, o1]));
+      when(
+        () => mockOrderRepository.streamCommandesCommercant(merchantId),
+      ).thenAnswer((_) => Stream.value([o2, o1]));
 
       controller = MerchantOrdersController(
         orderRepository: mockOrderRepository,
@@ -63,7 +65,9 @@ void main() {
   });
 
   group('MerchantOrderDetailScreen - Action Button Resolution', () {
-    testWidgets('should show "Passer à : Acceptée" when status is EN_ATTENTE', (tester) async {
+    testWidgets('should show "Passer à : Acceptée" when status is EN_ATTENTE', (
+      tester,
+    ) async {
       final order = OrderModel(
         idCommande: 'ord_1',
         idEtudiant: 'stud_1',
@@ -74,10 +78,20 @@ void main() {
         statut: OrderStatus.enAttente,
       );
 
-      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
-          .thenAnswer((_) => Stream.value([order]));
-      when(() => mockUserRepository.obtenirUtilisateur('stud_1'))
-          .thenAnswer((_) => Future.value(const UserModel(idUser: 'stud_1', prenoms: 'Jean', nom: 'Dupont', email: '', campus: 'Abomey')));
+      when(
+        () => mockOrderRepository.streamCommandesCommercant(merchantId),
+      ).thenAnswer((_) => Stream.value([order]));
+      when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
+        (_) => Future.value(
+          const UserModel(
+            idUser: 'stud_1',
+            prenoms: 'Jean',
+            nom: 'Dupont',
+            email: '',
+            campus: 'Abomey',
+          ),
+        ),
+      );
 
       controller = MerchantOrdersController(
         orderRepository: mockOrderRepository,
@@ -102,90 +116,123 @@ void main() {
       expect(find.text('Passer à : Acceptée'), findsOneWidget);
     });
 
-    testWidgets('should NOT show button when next status is student action (LIVREE)', (tester) async {
-      final order = OrderModel(
-        idCommande: 'ord_1',
-        idEtudiant: 'stud_1',
-        idCommercant: merchantId,
-        dateCommande: DateTime.now(),
-        montantTotal: 1500,
-        typeReception: DeliveryType.livraison,
-        statut: OrderStatus.enCoursDeLivraison,
-      );
+    testWidgets(
+      'should NOT show button when next status is student action (LIVREE)',
+      (tester) async {
+        final order = OrderModel(
+          idCommande: 'ord_1',
+          idEtudiant: 'stud_1',
+          idCommercant: merchantId,
+          dateCommande: DateTime.now(),
+          montantTotal: 1500,
+          typeReception: DeliveryType.livraison,
+          statut: OrderStatus.enCoursDeLivraison,
+        );
 
-      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
-          .thenAnswer((_) => Stream.value([order]));
-      when(() => mockUserRepository.obtenirUtilisateur('stud_1'))
-          .thenAnswer((_) => Future.value(const UserModel(idUser: 'stud_1', prenoms: 'Jean', nom: 'Dupont', email: '', campus: 'Abomey')));
-
-      controller = MerchantOrdersController(
-        orderRepository: mockOrderRepository,
-        userRepository: mockUserRepository,
-        merchantId: merchantId,
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: ChangeNotifierProvider.value(
-            value: controller,
-            child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+        when(
+          () => mockOrderRepository.streamCommandesCommercant(merchantId),
+        ).thenAnswer((_) => Stream.value([order]));
+        when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
+          (_) => Future.value(
+            const UserModel(
+              idUser: 'stud_1',
+              prenoms: 'Jean',
+              nom: 'Dupont',
+              email: '',
+              campus: 'Abomey',
+            ),
           ),
-        ),
-      );
+        );
 
-      for (int i = 0; i < 20; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
+        controller = MerchantOrdersController(
+          orderRepository: mockOrderRepository,
+          userRepository: mockUserRepository,
+          merchantId: merchantId,
+        );
 
-      expect(find.byType(ElevatedButton), findsNothing);
-    });
-
-    testWidgets('should show "Passer à : Reçue" for pickup (Retrait) when status is TERMINEE', (tester) async {
-      final order = OrderModel(
-        idCommande: 'ord_1',
-        idEtudiant: 'stud_1',
-        idCommercant: merchantId,
-        dateCommande: DateTime.now(),
-        montantTotal: 1500,
-        typeReception: DeliveryType.retrait,
-        statut: OrderStatus.terminee,
-      );
-
-      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
-          .thenAnswer((_) => Stream.value([order]));
-      when(() => mockUserRepository.obtenirUtilisateur('stud_1'))
-          .thenAnswer((_) => Future.value(const UserModel(idUser: 'stud_1', prenoms: 'Jean', nom: 'Dupont', email: '', campus: 'Abomey')));
-
-      controller = MerchantOrdersController(
-        orderRepository: mockOrderRepository,
-        userRepository: mockUserRepository,
-        merchantId: merchantId,
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: ChangeNotifierProvider.value(
-            value: controller,
-            child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: controller,
+              child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+            ),
           ),
-        ),
-      );
+        );
 
-      for (int i = 0; i < 20; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
+        for (int i = 0; i < 20; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
 
-      expect(find.text('Passer à : Reçue'), findsOneWidget);
-    });
+        expect(find.byType(ElevatedButton), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'should show "Passer à : Reçue" for pickup (Retrait) when status is TERMINEE',
+      (tester) async {
+        final order = OrderModel(
+          idCommande: 'ord_1',
+          idEtudiant: 'stud_1',
+          idCommercant: merchantId,
+          dateCommande: DateTime.now(),
+          montantTotal: 1500,
+          typeReception: DeliveryType.retrait,
+          statut: OrderStatus.terminee,
+        );
+
+        when(
+          () => mockOrderRepository.streamCommandesCommercant(merchantId),
+        ).thenAnswer((_) => Stream.value([order]));
+        when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
+          (_) => Future.value(
+            const UserModel(
+              idUser: 'stud_1',
+              prenoms: 'Jean',
+              nom: 'Dupont',
+              email: '',
+              campus: 'Abomey',
+            ),
+          ),
+        );
+
+        controller = MerchantOrdersController(
+          orderRepository: mockOrderRepository,
+          userRepository: mockUserRepository,
+          merchantId: merchantId,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: controller,
+              child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+            ),
+          ),
+        );
+
+        for (int i = 0; i < 20; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+
+        expect(find.text('Passer à : Reçue'), findsOneWidget);
+      },
+    );
   });
 
-  testWidgets('OrderProgressBar renders correct number of steps', (tester) async {
+  testWidgets('OrderProgressBar renders correct number of steps', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
           body: OrderProgressBar(
             currentStatus: OrderStatus.acceptee,
-            steps: [OrderStatus.enAttente, OrderStatus.acceptee, OrderStatus.terminee, OrderStatus.recu],
+            steps: [
+              OrderStatus.enAttente,
+              OrderStatus.acceptee,
+              OrderStatus.terminee,
+              OrderStatus.recu,
+            ],
           ),
         ),
       ),

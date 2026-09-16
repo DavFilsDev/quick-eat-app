@@ -15,10 +15,11 @@ class OrderProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = steps.indexOf(currentStatus);
-    
+
     return Row(
       children: List.generate(steps.length, (index) {
-        final isCompleted = index <= currentIndex && currentStatus != OrderStatus.annulee;
+        final isCompleted =
+            index <= currentIndex && currentStatus != OrderStatus.annulee;
         final isLast = index == steps.length - 1;
 
         return Expanded(
@@ -39,7 +40,9 @@ class OrderProgressBar extends StatelessWidget {
                 Expanded(
                   child: Container(
                     height: 2,
-                    color: index < currentIndex && currentStatus != OrderStatus.annulee
+                    color:
+                        index < currentIndex &&
+                            currentStatus != OrderStatus.annulee
                         ? AppColors.primary
                         : Colors.grey[300],
                   ),

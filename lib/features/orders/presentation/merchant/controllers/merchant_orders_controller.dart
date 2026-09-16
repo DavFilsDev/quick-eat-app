@@ -38,7 +38,8 @@ class MerchantOrdersController extends ChangeNotifier {
           },
           onError: (error) {
             _isLoading = false;
-            _errorMessage = "Erreur lors de la récupération des commandes : $error";
+            _errorMessage =
+                "Erreur lors de la récupération des commandes : $error";
             notifyListeners();
           },
         );
@@ -52,11 +53,14 @@ class MerchantOrdersController extends ChangeNotifier {
   }
 
   int get enCoursCount {
-    return _allOrders.where((o) => 
-      o.statut != OrderStatus.recu && 
-      o.statut != OrderStatus.livree && 
-      o.statut != OrderStatus.annulee
-    ).length;
+    return _allOrders
+        .where(
+          (o) =>
+              o.statut != OrderStatus.recu &&
+              o.statut != OrderStatus.livree &&
+              o.statut != OrderStatus.annulee,
+        )
+        .length;
   }
 
   bool get isLoading => _isLoading;
