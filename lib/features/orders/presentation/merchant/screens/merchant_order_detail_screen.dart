@@ -365,7 +365,18 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text('✓ Passer à : ${nextStatus.label}'),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.check,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 6),
+                          Text('Passer à : ${nextStatus.label}'),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -448,7 +459,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
     final first = items.first;
     final rest = items.length - 1;
     return rest > 0
-        ? '${first.quantite}× ${first.nom} +${rest} autre(s)'
+        ? '${first.quantite}× ${first.nom} +$rest autre(s)'
         : '${first.quantite}× ${first.nom}';
   }
 
