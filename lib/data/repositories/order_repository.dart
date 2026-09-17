@@ -40,7 +40,10 @@ class FirestoreOrderRepository implements OrderRepository {
   Future<String> creerCommande(OrderModel commande) async {
     final docRef = _orders.doc();
     final batch = _firestore.batch();
-    batch.set(docRef, commande.toMap()..remove('items'));
+    final data = commande.toMap()
+      ..['idCommande'] = docRef.id
+      ..remove('items');
+    batch.set(docRef, data);
     for (final item in commande.items) {
       batch.set(
         docRef.collection(FirestorePaths.orderItems).doc(),
@@ -53,6 +56,9 @@ class FirestoreOrderRepository implements OrderRepository {
 
   @override
   Future<void> mettreAJourStatut(String idCommande, OrderStatus statut) async {
+    if (idCommande.isEmpty) {
+      throw const Failure('Commande introuvable.');
+    }
     try {
       await _orders.doc(idCommande).set({
         'statut': statut.dbValue,
@@ -67,6 +73,9 @@ class FirestoreOrderRepository implements OrderRepository {
 
   @override
   Future<void> annulerCommande(String idCommande) async {
+    if (idCommande.isEmpty) {
+      throw const Failure('Commande introuvable.');
+    }
     final doc = await _orders.doc(idCommande).get();
     final data = doc.data();
     if (data == null) {

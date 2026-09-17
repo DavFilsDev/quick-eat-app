@@ -113,8 +113,16 @@ class StudentOrdersController extends ChangeNotifier {
     try {
       await _orderRepository.mettreAJourStatut(idCommande, OrderStatus.livree);
       return true;
+    } on Failure catch (e) {
+      _errorMessage = e.message;
+      notifyListeners();
+      return false;
     } on FirebaseException catch (e) {
       _errorMessage = Failure.fromException(e).message;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _errorMessage = 'Une erreur est survenue. Réessayez.';
       notifyListeners();
       return false;
     }
@@ -124,12 +132,16 @@ class StudentOrdersController extends ChangeNotifier {
     try {
       await _orderRepository.annulerCommande(idCommande);
       return true;
-    } on InvalidOrderTransition catch (e) {
+    } on Failure catch (e) {
       _errorMessage = e.message;
       notifyListeners();
       return false;
     } on FirebaseException catch (e) {
       _errorMessage = Failure.fromException(e).message;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _errorMessage = 'Une erreur est survenue. Réessayez.';
       notifyListeners();
       return false;
     }
