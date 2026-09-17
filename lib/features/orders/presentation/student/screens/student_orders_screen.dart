@@ -113,7 +113,8 @@ class _StudentOrdersView extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const _BarreNavigation(),
+      // La barre de navigation inférieure est portée par le shell
+      // (`StudentMainLayout`), pas par cette sous-page.
     );
   }
 
@@ -253,40 +254,6 @@ class _EnTeteMesCommandes extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _BarreNavigation extends StatelessWidget {
-  const _BarreNavigation();
-
-  @override
-  Widget build(BuildContext context) {
-    // Onglet "Commandes" actif car c'est cet écran. "Accueil"/"Profil" sont
-    // hors périmètre (feat/student-home, feat/profile) : le câblage réel
-    // de la navigation revient à l'intégration finale de l'équipe (ex:
-    // remplacer onTap par une navigation vers les routes définies dans
-    // app.dart / go_router).
-    return BottomNavigationBar(
-      currentIndex: 1,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.textSecondary,
-      type: BottomNavigationBarType.fixed,
-      onTap: (_) {},
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: 'Accueil',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.receipt_long),
-          label: 'Commandes',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          label: 'Profil',
-        ),
-      ],
     );
   }
 }
