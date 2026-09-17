@@ -33,11 +33,22 @@ class MenuFormDialog extends StatefulWidget {
 }
 
 class _MenuFormDialogState extends State<MenuFormDialog> {
+  static const _categoriesPredefinies = <String>[
+    'Fast Food',
+    'Pizza',
+    'Boisson',
+    'Snack',
+    'Salé',
+    'Sucré',
+    'Autre',
+  ];
+
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _prixController;
   late final TextEditingController _imageUrlController;
+  late final TextEditingController _categorieAutreController;
   late final List<String> _categories;
   late String _categorie;
   late bool _disponible;
@@ -49,6 +60,7 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
   void initState() {
     super.initState();
     final plat = widget.plat;
+    final categoriePlat = plat?.categorie;
     _nomController = TextEditingController(text: plat?.nom ?? '');
     _descriptionController = TextEditingController(
       text: plat?.description ?? '',
@@ -57,17 +69,18 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
       text: plat != null ? plat.prix.toStringAsFixed(0) : '',
     );
     _imageUrlController = TextEditingController(text: plat?.imageUrl ?? '');
-    _categories = {
-      'Fast Food',
-      'Pizza',
-      'Boisson',
-      'Snack',
-      'Salé',
-      'Sucré',
-      'Autre',
-      if (plat != null) plat.categorie,
-    }.toList();
-    _categorie = plat?.categorie ?? _categories.first;
+    _categories = List<String>.of(_categoriesPredefinies);
+    _categorie = categoriePlat == null || _categories.contains(categoriePlat)
+        ? (categoriePlat ?? _categories.first)
+        : 'Autre';
+    _categorieAutreController = TextEditingController(
+      text:
+          _categorie == 'Autre' &&
+              categoriePlat != null &&
+              categoriePlat != 'Autre'
+          ? categoriePlat
+          : '',
+    );
     _disponible = plat?.disponible ?? true;
 
     _imageUrlController.addListener(_rafraichirApercu);
@@ -82,6 +95,7 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
     _descriptionController.dispose();
     _prixController.dispose();
     _imageUrlController.dispose();
+    _categorieAutreController.dispose();
     super.dispose();
   }
 
@@ -91,13 +105,16 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
 
     final description = _descriptionController.text.trim();
     final imageUrl = _imageUrlController.text.trim();
+    final categorie = _categorie == 'Autre'
+        ? _categorieAutreController.text.trim()
+        : _categorie;
     final plat = FoodModel(
       idFood: widget.plat?.idFood ?? '',
       nom: _nomController.text.trim(),
       description: description.isEmpty ? null : description,
       prix: double.parse(_prixController.text.replaceAll(',', '.').trim()),
       imageUrl: imageUrl.isEmpty ? null : imageUrl,
-      categorie: _categorie,
+      categorie: categorie,
       disponible: _disponible,
       idCommercant: widget.plat?.idCommercant ?? '',
     );
@@ -121,6 +138,14 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
     final prix = double.tryParse(value.replaceAll(',', '.').trim());
     if (prix == null) return 'Prix invalide';
     if (prix <= 0) return 'Le prix doit être supérieur à 0';
+    return null;
+  }
+
+  String? _validerCategorieAutre(String? value) {
+    if (_categorie != 'Autre') return null;
+    if (value == null || value.trim().isEmpty) {
+      return 'La catégorie est requise';
+    }
     return null;
   }
 
@@ -213,6 +238,19 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
                     if (valeur != null) setState(() => _categorie = valeur);
                   },
                 ),
+                if (_categorie == 'Autre') ...[
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    key: const Key('champ_categorie_autre'),
+                    controller: _categorieAutreController,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      labelText: 'Préciser la catégorie',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: _validerCategorieAutre,
+                  ),
+                ],
                 const SizedBox(height: 12),
                 TextFormField(
                   key: const Key('champ_image_plat'),

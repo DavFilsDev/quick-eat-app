@@ -99,4 +99,36 @@ void main() {
     expect(capture.prix, 1500);
     expect(capture.idCommercant, 'user-004');
   });
+
+  testWidgets('utilise la catégorie personnalisée quand "Autre" est choisi', (
+    tester,
+  ) async {
+    when(() => mockMenuRepository.creerMenu(any()))
+        .thenAnswer((_) async => 'food-x');
+
+    await ouvrirFormulaire(tester);
+    await tester.enterText(find.byKey(const Key('champ_nom_plat')), 'Tacos');
+    await tester.enterText(find.byKey(const Key('champ_prix_plat')), '2000');
+
+    final dropdown = find.byKey(const Key('champ_categorie_plat'));
+    await tester.ensureVisible(dropdown);
+    await tester.tap(dropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Autre').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('champ_categorie_autre')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('champ_categorie_autre')),
+      'Cuisine locale',
+    );
+    await valider(tester);
+    await tester.pumpAndSettle();
+
+    final capture =
+        verify(() => mockMenuRepository.creerMenu(captureAny())).captured.single
+            as FoodModel;
+    expect(capture.categorie, 'Cuisine locale');
+  });
 }
