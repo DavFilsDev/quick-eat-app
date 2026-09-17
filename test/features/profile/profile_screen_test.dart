@@ -101,7 +101,8 @@ void main() {
     expect(find.text('Nom du stand'), findsOneWidget);
     expect(find.text("Horaires d'ouverture"), findsOneWidget);
     expect(find.text('Emplacement'), findsOneWidget);
-    expect(find.text('Gérer mon menu'), findsOneWidget);
+    expect(find.text('Gérer mon menu'), findsNothing);
+    expect(find.byKey(const Key('gerer_mon_menu')), findsNothing);
 
     controller.dispose();
   });
