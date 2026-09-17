@@ -28,8 +28,11 @@ class OrderModel {
   });
 
   factory OrderModel.fromMap(Map<String, dynamic> data, {required String id}) {
+    final idCommandeStocke = data['idCommande'] as String?;
     return OrderModel(
-      idCommande: data['idCommande'] as String? ?? id,
+      idCommande: (idCommandeStocke == null || idCommandeStocke.isEmpty)
+          ? id
+          : idCommandeStocke,
       idEtudiant: data['idEtudiant'] as String? ?? '',
       idCommercant: data['idCommercant'] as String? ?? '',
       dateCommande: _parseDate(data['dateCommande']) ?? DateTime.now(),

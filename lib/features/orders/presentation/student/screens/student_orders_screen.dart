@@ -44,16 +44,39 @@ class _StudentOrdersView extends StatelessWidget {
   };
 
   Future<void> _annuler(BuildContext context, String idCommande) async {
+    final confirme = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Annuler la commande'),
+        content: const Text(
+          'Veux-tu vraiment annuler cette commande ? Cette action est définitive.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Non'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Oui, annuler'),
+          ),
+        ],
+      ),
+    );
+    if (confirme != true || !context.mounted) return;
+
     final controller = context.read<StudentOrdersController>();
     final succes = await controller.annulerCommande(idCommande);
     if (!context.mounted) return;
-    if (!succes) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(controller.errorMessage ?? 'Une erreur est survenue.'),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          succes
+              ? 'Commande annulée.'
+              : controller.errorMessage ?? 'Une erreur est survenue.',
         ),
-      );
-    }
+      ),
+    );
   }
 
   Future<void> _confirmerReception(

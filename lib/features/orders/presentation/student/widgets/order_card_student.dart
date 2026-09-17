@@ -313,7 +313,7 @@ class _TagModeReception extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            estLivraison ? Icons.two_wheeler : Icons.storefront,
+            estLivraison ? Icons.directions_walk : Icons.storefront,
             size: 14,
             color: AppColors.textSecondary,
           ),

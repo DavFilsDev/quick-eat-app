@@ -170,6 +170,16 @@ void main() {
         'Cette commande ne peut plus être annulée (préparation déjà lancée).',
       );
     });
+
+    test('retourne false avec le message si Failure', () async {
+      when(() => mockRepository.annulerCommande(any()))
+          .thenThrow(const Failure('Commande introuvable.'));
+
+      final resultat = await controller.annulerCommande('');
+
+      expect(resultat, isFalse);
+      expect(controller.errorMessage, 'Commande introuvable.');
+    });
   });
 
   group('confirmerReception', () {
@@ -182,6 +192,16 @@ void main() {
       expect(resultat, isTrue);
       verify(() => mockRepository.mettreAJourStatut('c1', OrderStatus.livree))
           .called(1);
+    });
+
+    test('retourne false avec le message si Failure', () async {
+      when(() => mockRepository.mettreAJourStatut(any(), any()))
+          .thenThrow(const Failure('Commande introuvable.'));
+
+      final resultat = await controller.confirmerReception('');
+
+      expect(resultat, isFalse);
+      expect(controller.errorMessage, 'Commande introuvable.');
     });
   });
 }
