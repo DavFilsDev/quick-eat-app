@@ -103,4 +103,83 @@ void main() {
 
     controller.dispose();
   });
+
+  group('filtrage et tri', () {
+    const plats = <FoodModel>[
+      FoodModel(
+        idFood: 'f1',
+        nom: 'Burger',
+        prix: 1500,
+        categorie: 'Fast Food',
+        idCommercant: 'user-004',
+      ),
+      FoodModel(
+        idFood: 'f2',
+        nom: 'Pizza',
+        prix: 3500,
+        categorie: 'Pizza',
+        idCommercant: 'user-004',
+      ),
+      FoodModel(
+        idFood: 'f3',
+        nom: 'Coca',
+        prix: 500,
+        categorie: 'Boisson',
+        idCommercant: 'user-004',
+      ),
+    ];
+
+    Future<MenuManagementController> controllerAvecPlats() async {
+      final controller = creerController();
+      when(() => mockMenuRepository.streamMenusParCommercant('user-004'))
+          .thenAnswer((_) => Stream.value(plats));
+      controller.startListening();
+      await Future.delayed(Duration.zero);
+      return controller;
+    }
+
+    test('filtre par recherche sur le nom', () async {
+      final controller = await controllerAvecPlats();
+      controller.setRecherche('piz');
+
+      expect(controller.plats.length, 1);
+      expect(controller.plats.single.nom, 'Pizza');
+
+      controller.dispose();
+    });
+
+    test('filtre par catégorie', () async {
+      final controller = await controllerAvecPlats();
+      controller.setCategorie('Boisson');
+
+      expect(controller.plats.length, 1);
+      expect(controller.plats.single.idFood, 'f3');
+
+      controller.setCategorie('Tous');
+      expect(controller.plats.length, 3);
+
+      controller.dispose();
+    });
+
+    test('trie par prix croissant puis décroissant', () async {
+      final controller = await controllerAvecPlats();
+
+      controller.setTri(MenuTri.prixCroissant);
+      expect(controller.plats.map((p) => p.prix).toList(), [500, 1500, 3500]);
+
+      controller.setTri(MenuTri.prixDecroissant);
+      expect(controller.plats.map((p) => p.prix).toList(), [3500, 1500, 500]);
+
+      controller.dispose();
+    });
+
+    test('expose les catégories dynamiques et l\'état non vide', () async {
+      final controller = await controllerAvecPlats();
+
+      expect(controller.categories, ['Tous', 'Boisson', 'Fast Food', 'Pizza']);
+      expect(controller.aDesPlats, isTrue);
+
+      controller.dispose();
+    });
+  });
 }
