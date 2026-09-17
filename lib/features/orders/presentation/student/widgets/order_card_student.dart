@@ -7,21 +7,6 @@ import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/order_model.dart';
 
-/// Carte d'une commande sur l'écran "Mes Commandes" (maquette Figma
-/// `Commandes Étudiant`).
-///
-/// Widget "bête" : aucune règle métier ici. La visibilité des boutons se
-/// base uniquement sur `commande.statut` / `commande.typeReception` /
-/// `commande.peutEtreAnnulee` (déjà calculés dans `OrderModel`), et les
-/// actions (`onConfirmReception`, `onCancel`) sont déléguées au parent qui
-/// passe par `StudentOrdersController`.
-///
-/// Fidélité maquette — 2 écarts assumés : le mockup montre une miniature
-/// du plat, une ETA de livraison ("Arrivée estimée : 5 min") et un nom de
-/// comptoir de retrait ("Comptoir Express"). Ces données n'existent pas
-/// dans `OrderItemModel`/`OrderModel` fournis : une icône générique
-/// remplace l'image, et l'ETA/comptoir ne sont pas affichés tant que ces
-/// champs n'existent pas côté modèle (pas de données inventées).
 class OrderCardStudent extends StatelessWidget {
   const OrderCardStudent({
     super.key,
@@ -77,8 +62,6 @@ class OrderCardStudent extends StatelessWidget {
     }
   }
 
-  /// Seule info non-inventée, indépendante des données manquantes : cette
-  /// phrase reste vraie tant que le statut est EN_ATTENTE.
   String? get _detailDroit {
     if (commande.statut == OrderStatus.enAttente) {
       return 'Attente confirmation resto';
@@ -95,8 +78,6 @@ class OrderCardStudent extends StatelessWidget {
     );
     final statutVisuel = _statutVisuel;
 
-    // Responsive : la carte s'adapte à la largeur disponible (mobile,
-    // tablette, web) via LayoutBuilder plutôt que des tailles fixes.
     return LayoutBuilder(
       builder: (context, constraints) {
         final large = constraints.maxWidth > 480;

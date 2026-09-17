@@ -1,4 +1,3 @@
-/// Ligne d'une commande : un plat, sa quantité et son prix figé.
 class OrderItemModel {
   final String idItem;
   final String idFood;

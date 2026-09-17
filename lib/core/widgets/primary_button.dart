@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 
-/// Bouton plein-largeur arrondi utilisé sur les CTA principaux
-/// ("Se connecter", "Valider la commande", "Passer à : Accepté"...).
 class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;

@@ -1,4 +1,3 @@
-/// Plat proposé par un commerçant.
 class FoodModel {
   final String idFood;
   final String nom;

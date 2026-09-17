@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'enums/user_role.dart';
 
-/// Modèle d'un utilisateur (étudiant ou commerçant).
 class UserModel {
   final String idUser;
   final String prenoms;
@@ -84,7 +83,6 @@ class UserModel {
     );
   }
 
-  // Firestore renvoie un Timestamp, le JSON une String ISO.
   static DateTime? _parseDate(Object? value) {
     if (value == null) return null;
     if (value is DateTime) return value;

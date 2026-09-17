@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_text_styles.dart';
 
-/// Vue d'erreur standard — pour tout état Failure remonté par un
-/// controller. [onRetry] est optionnel (masque le bouton si absent).
 class ErrorView extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;

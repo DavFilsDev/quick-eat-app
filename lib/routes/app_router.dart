@@ -11,33 +11,20 @@ import '../features/profile/presentation/screens/student_profile_screen.dart';
 import '../features/shell/presentation/layouts/merchant_main_layout.dart';
 import '../features/shell/presentation/layouts/student_main_layout.dart';
 
-/// Toutes les routes de l'app sont déclarées ICI, une seule fois, par le
-/// Tech Lead, AVANT le démarrage du sprint. Chaque développeur crée
-/// uniquement le fichier d'écran pointé par sa route (voir le plan de
-/// sprint) — personne ne doit plus modifier ce fichier pendant le sprint,
-/// pour éviter tout conflit de merge. Les imports ci-dessus pointent vers
-/// des écrans qui n'existent pas encore : ils seront ajoutés par chaque
-/// dev sur sa propre branche via `flutter create`-style stub (voir
-/// prérequis n°6).
 class AppRouter {
   AppRouter._();
 
-  // Auth (Dev 1)
   static const String login = '/login';
   static const String register = '/register';
 
-  // Catalogue étudiant (Dev 2)
   static const String studentHome = '/student/home';
   static const String restaurantDetail = '/student/restaurant-detail';
 
-  // Commandes étudiant (Dev 3)
   static const String studentOrders = '/student/orders';
 
-  // Commandes commerçant (Dev 4)
   static const String merchantHome = '/merchant/home';
   static const String merchantOrderDetail = '/merchant/order-detail';
 
-  // Menus & profils (Dev 5)
   static const String merchantMenuManagement = '/merchant/menus';
   static const String studentProfile = '/student/profile';
   static const String merchantProfile = '/merchant/profile';

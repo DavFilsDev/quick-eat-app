@@ -53,7 +53,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
         appBar: const QuickEatAppBar(automaticallyImplyLeading: false),
         body: Column(
           children: [
-            // Bannière du restaurant
             Consumer<CatalogController>(
               builder: (context, controller, child) {
                 return Padding(
@@ -62,7 +61,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                     borderRadius: BorderRadius.circular(16),
                     child: Stack(
                       children: [
-                        // Arrière-plan avec dégradé sombre
                         Container(
                           height: 180,
                           width: double.infinity,
@@ -78,7 +76,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                             ),
                           ),
                         ),
-                        // Bouton retour circulaire blanc
                         Positioned(
                           top: 12,
                           left: 12,
@@ -100,7 +97,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                             ),
                           ),
                         ),
-                        // Informations du restaurant
                         Positioned(
                           bottom: 16,
                           left: 16,
@@ -149,7 +145,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
               },
             ),
 
-            // Recherche interne
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
@@ -163,7 +158,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
               ),
             ),
 
-            // Filtres par catégorie (dynamiques)
             SizedBox(
               height: 48,
               child: Consumer<CatalogController>(
@@ -184,7 +178,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
               ),
             ),
 
-            // Liste des plats du commerçant
             Expanded(
               child: Consumer<CatalogController>(
                 builder: (context, controller, child) {

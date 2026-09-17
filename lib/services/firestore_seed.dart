@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 import '../core/constants/firestore_paths.dart';
 import '../mock/mock_data.dart';
 
-/// Insère les données fictives de [MockData] dans Firestore (projet fscamp-app)
-/// uniquement si les collections sont vides. À n'utiliser qu'en développement.
 Future<void> assurerSeedFirestore({FirebaseFirestore? firestore}) async {
   final db = firestore ?? FirebaseFirestore.instance;
 

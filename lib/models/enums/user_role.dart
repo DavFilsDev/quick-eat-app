@@ -1,4 +1,3 @@
-/// Rôle d'un utilisateur dans QuickEat.
 enum UserRole {
   student('STUDENT', 'Étudiant'),
   merchant('MERCHANT', 'Commerçant');

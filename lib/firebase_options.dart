@@ -1,5 +1,3 @@
-// Generated from the Firebase console configs of the fscamp-app project.
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
@@ -24,13 +22,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    // ← AJOUTE ÇA
     apiKey: 'AIzaSyBnZ1fVFo4BZq0WBWafLaGaj1nSuIQRntk',
     appId: '1:407341650736:android:41e69bb5815d2fc36c6ef5',
     messagingSenderId: '407341650736',
     projectId: 'fscamp-app',
     storageBucket: 'fscamp-app.firebasestorage.app',
-    authDomain: 'fscamp-app.firebaseapp.com', // important pour web
+    authDomain: 'fscamp-app.firebaseapp.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

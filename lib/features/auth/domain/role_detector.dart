@@ -19,7 +19,6 @@ class RoleDetector {
     'icloud.com',
   ];
 
-  /// Analyse l'email pour suggérer un rôle.
   static UserRole? detectFromEmail(String email) {
     final cleanEmail = email.trim().toLowerCase();
     final parts = cleanEmail.split('@');
@@ -28,20 +27,16 @@ class RoleDetector {
 
     final domain = parts[1];
 
-    // Domaine académique connu -> Étudiant
     for (final studentDomain in _studentDomains) {
       if (domain.contains(studentDomain)) {
         return UserRole.student;
       }
     }
 
-    // Email grand public (Gmail, Yahoo...) -> Indéterminé (Null)
-    // On laisse le RoleToggle manuel faire son travail
     if (_publicDomains.contains(domain)) {
       return null;
     }
 
-    // Domaine privé/entreprise -> Commerçant potentiel
     return UserRole.merchant;
   }
 }

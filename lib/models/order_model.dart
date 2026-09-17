@@ -4,10 +4,6 @@ import 'enums/delivery_type.dart';
 import 'enums/order_status.dart';
 import 'order_item_model.dart';
 
-/// Modèle d'une commande.
-///
-/// Stockée dans Firestore `orders` ; ses lignes sont dans la
-/// sous-collection `orders/{orderId}/items`.
 class OrderModel {
   final String idCommande;
   final String idEtudiant;
@@ -88,9 +84,6 @@ class OrderModel {
     );
   }
 
-  // Workflow marchand :
-  // - Livraison : ACCEPTEE → EN_COURS_DE_LIVRAISON → LIVREE
-  // - Retrait : ACCEPTEE → TERMINEE → RECU
   List<OrderStatus> get statutsMarchand {
     return typeReception == DeliveryType.livraison
         ? const [
@@ -101,11 +94,8 @@ class OrderModel {
         : const [OrderStatus.acceptee, OrderStatus.terminee, OrderStatus.recu];
   }
 
-  // Règle métier : l'annulation n'est autorisée qu'en EN_ATTENTE, avant
-  // lancement de la préparation par le commerçant.
   bool get peutEtreAnnulee => statut == OrderStatus.enAttente;
 
-  // Firestore renvoie un Timestamp, le JSON une String ISO.
   static DateTime? _parseDate(Object? value) {
     if (value == null) return null;
     if (value is DateTime) return value;

@@ -18,9 +18,6 @@ class _FakeOrderModel extends Fake implements OrderModel {}
 void main() {
   setUpAll(() {
     registerFallbackValue(_FakeOrderModel());
-    // Énuméré `OrderStatus` passé via `any()` dans `mettreAJourStatut` :
-    // mocktail exige un fallback explicitement enregistré sous peine de
-    // lever « Bad state » au moment du `verify`.
     registerFallbackValue(OrderStatus.livree);
   });
 
@@ -37,10 +34,6 @@ void main() {
 
   setUp(() {
     mockRepository = MockOrderRepository();
-    // Stream broadcast : imite le comportement de Firestore (`snapshots()`),
-    // qui renvoie un nouveau stream ré-écoutable à chaque appel — nécessaire
-    // pour tester `startListening()` deux fois (redémarrage) sans lever
-    // « Bad state: Stream has already been listened to ».
     streamController = StreamController<List<OrderModel>>.broadcast();
     when(() => mockRepository.streamCommandesEtudiant(any()))
         .thenAnswer((_) => streamController.stream);

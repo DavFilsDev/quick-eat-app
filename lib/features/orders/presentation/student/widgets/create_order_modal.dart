@@ -10,14 +10,6 @@ import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/food_model.dart';
 import '../controllers/student_orders_controller.dart';
 
-/// Modale "Confirmer votre commande" (maquette `Accueil Étudiant Modal
-/// Commande`), ouverte depuis l'écran d'accueil (Dev1) via le contrat
-/// fixé : `CreateOrderModal.show(context, food: food)`.
-///
-/// Le widget prend un [controller] en paramètre (plutôt que de le
-/// construire lui-même) pour rester testable sans Firebase réel — c'est
-/// `show()` qui câble les vraies dépendances (repository + utilisateur
-/// connecté).
 class CreateOrderModal extends StatefulWidget {
   const CreateOrderModal({
     super.key,
@@ -28,11 +20,6 @@ class CreateOrderModal extends StatefulWidget {
   final FoodModel food;
   final StudentOrdersController controller;
 
-  /// Point d'entrée utilisé par les autres écrans (contrat fixé par le
-  /// Lead). Résout `OrderRepository` via `Provider` si l'app l'expose plus
-  /// haut dans l'arbre de widgets, avec un repli sur
-  /// `FirestoreOrderRepository` sinon — à ajuster selon la façon dont le
-  /// Lead a câblé les providers dans `app.dart`.
   static Future<bool> show(BuildContext context, {required FoodModel food}) {
     final controller = StudentOrdersController(
       orderRepository: _resolveOrderRepository(context),
@@ -111,8 +98,6 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
         final isSubmitting = widget.controller.isCreatingOrder;
         final erreur = widget.controller.creationErrorMessage;
 
-        // Responsive : largeur plafonnée sur grand écran (tablette/web),
-        // pleine largeur sur mobile.
         return ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480),
           child: Padding(
@@ -122,12 +107,6 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
               top: 20,
               bottom: MediaQuery.of(context).viewInsets.bottom + 20,
             ),
-            // Scroll intérieur : le contenu (mode de réception, quantité,
-            // total, bouton) est plus grand que la hauteur disponible quand
-            // la modale est ouverte sur un petit écran avec le clavier
-            // (maquette `Modal Commande` + `isScrollControlled`). Sans
-            // `SingleChildScrollView`, le `Column` déborde (RenderFlex
-            // overflow) et les boutons du bas deviennent hors d'atteinte.
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
