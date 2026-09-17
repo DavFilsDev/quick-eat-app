@@ -46,7 +46,6 @@ class MerchantOrdersController extends ChangeNotifier {
   }
 
   List<OrderModel> get orders {
-    // Triée de la plus ancienne à la plus récente (ancienneté croissante)
     final sorted = List<OrderModel>.from(_allOrders);
     sorted.sort((a, b) => a.dateCommande.compareTo(b.dateCommande));
     return sorted;

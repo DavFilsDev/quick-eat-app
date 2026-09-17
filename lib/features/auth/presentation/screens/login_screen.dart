@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../data/repositories/auth_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
+import '../../../../models/enums/user_role.dart';
 import '../../../../routes/app_router.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_text_field.dart';
@@ -52,7 +53,23 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.red,
         ),
       );
+      return;
     }
+
+    UserRole? role;
+    try {
+      role = (await _authController.obtenirUtilisateurConnecte())?.role;
+    } catch (_) {
+      role = null;
+    }
+    if (!mounted) return;
+
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      role == UserRole.merchant
+          ? AppRouter.merchantHome
+          : AppRouter.studentHome,
+      (route) => false,
+    );
   }
 
   @override
@@ -79,7 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // En-tête Figma
                   Text(
                     'QuickEat',
                     style: TextStyle(
@@ -103,7 +119,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Champs de saisie
                   AuthTextField(
                     controller: _emailController,
                     label: 'Adresse email',
@@ -150,7 +165,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Bouton Se connecter
                   SizedBox(
                     height: 48,
                     child: ElevatedButton(

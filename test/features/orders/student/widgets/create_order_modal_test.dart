@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_initializing_formals
 import 'dart:async';
 
 import 'package:flutter/material.dart';

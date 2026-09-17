@@ -1,4 +1,3 @@
-/// Mode de réception d'une commande.
 enum DeliveryType {
   livraison('LIVRAISON', 'Livraison'),
   retrait('RETRAIT', 'Retrait');

@@ -36,7 +36,6 @@ void main() {
     await tester.pump();
 
     expect(find.text('QuickEat'), findsOneWidget);
-    // Pas de photoUrl → initiales affichées.
     expect(find.text('MK'), findsOneWidget);
   });
 

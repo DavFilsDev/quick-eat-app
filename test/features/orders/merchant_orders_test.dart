@@ -106,7 +106,6 @@ void main() {
         ),
       );
 
-      // Give time for stream listener and post-frame callbacks
       for (int i = 0; i < 20; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }

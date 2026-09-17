@@ -1,5 +1,3 @@
-/// Formate une durée écoulée depuis [date] en texte court en français,
-/// utilisé sur les badges "Il y a X min" (Accueil Commerçant, Commandes).
 class TimeAgoFormatter {
   TimeAgoFormatter._();
 

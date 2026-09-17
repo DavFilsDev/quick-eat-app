@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Contrat d'authentification. Les widgets/controllers ne doivent JAMAIS
-/// appeler `FirebaseAuth.instance` directement — toujours passer par ici.
 abstract class AuthRepository {
   Stream<User?> get authStateChanges;
   User? get currentUser;

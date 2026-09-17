@@ -63,7 +63,6 @@ Future<void> _seedOrdersPourCommercantDev(
 
   final repo = FirestoreOrderRepository(firestore: db);
 
-  // 1. En attente (livraison)
   await repo.creerCommande(
     OrderModel(
       idCommande: 'dev-order-1',
@@ -91,7 +90,6 @@ Future<void> _seedOrdersPourCommercantDev(
     ),
   );
 
-  // 2. Acceptée (retrait)
   await repo.creerCommande(
     OrderModel(
       idCommande: 'dev-order-2',
@@ -112,7 +110,6 @@ Future<void> _seedOrdersPourCommercantDev(
     ),
   );
 
-  // 3. Terminée (retrait) → teste le bouton "Passer à : Reçue"
   await repo.creerCommande(
     OrderModel(
       idCommande: 'dev-order-3',

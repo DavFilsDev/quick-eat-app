@@ -6,9 +6,6 @@ import '../../models/enums/order_status.dart';
 import '../../models/order_item_model.dart';
 import '../../models/order_model.dart';
 
-/// Contrat d'accès aux commandes `orders/{orderId}` et à leur sous-collection
-/// `orders/{orderId}/items`. Toute règle de transition de statut est
-/// appliquée ICI (pas dans les écrans) pour rester la seule source de vérité.
 abstract class OrderRepository {
   Stream<List<OrderModel>> streamCommandesEtudiant(String idEtudiant);
   Stream<List<OrderModel>> streamCommandesCommercant(String idCommercant);
@@ -55,8 +52,18 @@ class FirestoreOrderRepository implements OrderRepository {
   }
 
   @override
-  Future<void> mettreAJourStatut(String idCommande, OrderStatus statut) =>
-      _orders.doc(idCommande).update({'statut': statut.dbValue});
+  Future<void> mettreAJourStatut(String idCommande, OrderStatus statut) async {
+    try {
+      await _orders.doc(idCommande).set({
+        'statut': statut.dbValue,
+      }, SetOptions(merge: true));
+    } on FirebaseException catch (e) {
+      throw Failure(
+        'Impossible de mettre à jour le statut de la commande. Réessayez.',
+        cause: e,
+      );
+    }
+  }
 
   @override
   Future<void> annulerCommande(String idCommande) async {

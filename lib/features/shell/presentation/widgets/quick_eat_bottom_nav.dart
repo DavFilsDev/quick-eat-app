@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 
-/// Item de la barre de navigation inférieure QuickEat (maquette Figma).
-///
-/// Chaque onglet déclare une icône "outline" (état inactif) et une icône
-/// "filled" (état actif) pour respecter le style des maquettes.
 class QuickEatNavItem {
   const QuickEatNavItem({
     required this.label,
@@ -18,16 +14,6 @@ class QuickEatNavItem {
   final IconData iconActif;
 }
 
-/// Barre de navigation inférieure réutilisable (Étudiant & Commerçant).
-///
-/// - Fond blanc avec une bordure supérieure très fine (séparation du
-///   contenu) plutôt qu'une ombre marquée.
-/// - Onglet actif : couleur primaire (`AppColors.primary`).
-/// - Onglet inactif : gris neutre (`AppColors.textSecondary`).
-/// - Labels sous les icônes, taille 12, medium/bold selon l'état.
-///
-/// La barre appartient au `MainLayout` parent (contenant un `IndexedStack`),
-/// jamais à une sous-page individuelle.
 class QuickEatBottomNav extends StatelessWidget {
   const QuickEatBottomNav({
     super.key,

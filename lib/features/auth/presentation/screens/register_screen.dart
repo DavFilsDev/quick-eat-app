@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../data/repositories/auth_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../models/enums/user_role.dart';
+import '../../../../routes/app_router.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/role_toggle.dart';
@@ -74,7 +75,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: Colors.red,
         ),
       );
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Compte créé avec succès !'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      _role == UserRole.merchant
+          ? AppRouter.merchantHome
+          : AppRouter.studentHome,
+      (route) => false,
+    );
   }
 
   int get _passwordStrength {
@@ -166,7 +182,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // --- En-tête de la Maquette ---
                   Text(
                     'QuickEat',
                     style: TextStyle(
@@ -190,7 +205,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Toggle Étudiant / Commerçant
                   RoleToggle(
                     selectedRole: _role,
                     onRoleChanged: (newRole) => setState(() => _role = newRole),
@@ -216,7 +230,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Dropdown pour l'indicatif pays
                       Container(
                         height: 56,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -245,7 +258,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // Champ numéro local
                       Expanded(
                         child: AuthTextField(
                           controller: _telephoneController,

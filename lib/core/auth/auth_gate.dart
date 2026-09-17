@@ -8,15 +8,6 @@ import '../../models/enums/user_role.dart';
 import '../../routes/app_router.dart';
 import '../widgets/loading_view.dart';
 
-/// Point d'entrée unique de l'app (voir `app.dart`).
-///
-/// - Non connecté  -> écran de connexion.
-/// - Connecté      -> lit `users/{uid}.role` et redirige automatiquement
-///   vers l'accueil étudiant ou commerçant (routes déjà déclarées dans
-///   `AppRouter`, indépendamment de qui a implémenté l'écran).
-///
-/// Ne PAS modifier ce fichier pour brancher un écran spécifique : ajouter
-/// la route correspondante dans `app_router.dart` à la place.
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 

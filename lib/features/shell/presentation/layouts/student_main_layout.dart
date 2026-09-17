@@ -6,8 +6,6 @@ import '../../../profile/presentation/screens/student_profile_screen.dart';
 import '../widgets/quick_eat_bottom_nav.dart';
 import 'main_layout.dart';
 
-/// Coquille de l'espace Étudiant : 3 onglets [Accueil, Commandes, Profil]
-/// portés par un `IndexedStack` (état conservé entre les onglets).
 class StudentMainLayout extends StatelessWidget {
   const StudentMainLayout({super.key});
 

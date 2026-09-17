@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/errors/failures.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/order_model.dart';
@@ -164,7 +165,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Progression
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -206,7 +206,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Client
                   const Text(
                     'CLIENT',
                     style: TextStyle(
@@ -276,7 +275,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Plats
                   const Text(
                     'PLATS COMMANDÉS',
                     style: TextStyle(
@@ -337,7 +335,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Total
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -357,7 +354,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Action Button
                   if (nextStatus != null) ...[
                     SizedBox(
                       width: double.infinity,
@@ -428,7 +424,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
 
     final next = merchantSteps[currentIndex + 1];
 
-    // Si la prochaine étape est LIVREE, elle dépend de l'étudiant
     if (next == OrderStatus.livree) {
       return null;
     }
@@ -448,8 +443,11 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
       );
     } catch (e) {
       if (context.mounted) {
+        final message = e is Failure
+            ? e.message
+            : 'Erreur lors de la mise à jour du statut. Réessayez.';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur : $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
       }
     }

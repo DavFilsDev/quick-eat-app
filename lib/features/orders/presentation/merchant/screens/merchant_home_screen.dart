@@ -87,7 +87,6 @@ class MerchantHomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Ligne 1 : #QE-XX + badge temps + badge statut
                         Row(
                           children: [
                             Flexible(
@@ -144,9 +143,8 @@ class MerchantHomeScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        // Nom client
                         Text(
-                          order.idEtudiant, // Remplacé par le nom résolu ou placeholder
+                          order.idEtudiant,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -154,7 +152,6 @@ class MerchantHomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
 
-                        // Ligne 2 : Icône plat + résumé + badge mode réception
                         Row(
                           children: [
                             Container(
@@ -231,7 +228,6 @@ class MerchantHomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
 
-                        // Ligne 3 : Bouton Détails ->
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(

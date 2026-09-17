@@ -69,6 +69,12 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<UserModel?> obtenirUtilisateurConnecte() async {
+    final currentUser = _authRepository.currentUser;
+    if (currentUser == null) return null;
+    return _userRepository.obtenirUtilisateur(currentUser.uid);
+  }
+
   Future<bool> register({
     required String email,
     required String password,

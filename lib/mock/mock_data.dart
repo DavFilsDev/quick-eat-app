@@ -6,7 +6,6 @@ import '../models/order_item_model.dart';
 import '../models/order_model.dart';
 import '../models/user_model.dart';
 
-/// Données locales de test pour le développement, en attendant Firestore.
 class MockData {
   MockData._();
 

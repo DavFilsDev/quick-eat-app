@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Styles de texte réutilisables. Éviter de recréer des TextStyle ad-hoc
-/// dans les écrans/widgets — passer par cette classe.
 class AppTextStyles {
   AppTextStyles._();
 

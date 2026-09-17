@@ -5,6 +5,7 @@ import '../../../../data/repositories/menu_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../routes/app_router.dart';
 import '../../../orders/presentation/student/widgets/create_order_modal.dart';
+import '../../../shell/presentation/layouts/main_layout.dart';
 import '../controllers/catalog_controller.dart';
 import '../widgets/category_filter_chip.dart';
 import '../widgets/food_card.dart';
@@ -56,7 +57,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. Barre de recherche
                   TextField(
                     controller: _searchController,
                     focusNode: _focusNode,
@@ -74,7 +74,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // 2. Section RESTAURANTS DU CAMPUS (Filtres Chips)
                   const Text(
                     'RESTAURANTS DU CAMPUS',
                     style: TextStyle(
@@ -95,7 +94,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // 3. Section Plats disponibles
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -117,7 +115,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Liste verticale des plats
                   if (plats.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
@@ -132,21 +129,26 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                         final food = plats[index];
                         return FoodCard(
                           food: food,
-                          onCommander: () =>
-                              CreateOrderModal.show(context, food: food),
+                          onCommander: () async {
+                            final succes = await CreateOrderModal.show(
+                              context,
+                              food: food,
+                            );
+                            if (succes && context.mounted) {
+                              context.read<MainLayoutController>().select(1);
+                            }
+                          },
                         );
                       },
                     ),
                   const SizedBox(height: 24),
 
-                  // 4. Section Restaurants du campus
                   const Text(
                     'Restaurants du campus',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
 
-                  // Liste verticale des restaurants avec bouton "Visiter"
                   if (restaurantIds.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),

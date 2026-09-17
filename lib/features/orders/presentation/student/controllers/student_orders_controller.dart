@@ -11,24 +11,8 @@ import '../../../../../models/food_model.dart';
 import '../../../../../models/order_item_model.dart';
 import '../../../../../models/order_model.dart';
 
-/// État de chargement de la liste des commandes de l'étudiant.
 enum StudentOrdersStatus { loading, success, error }
 
-/// Contrôleur de l'écran "Mes Commandes" et de la modale de création.
-///
-/// Deux responsabilités volontairement regroupées ici (imposé par la
-/// répartition des tâches en un seul fichier `controllers`) :
-/// - écoute temps réel des commandes de l'étudiant (`startListening`),
-///   utilisée par `StudentOrdersScreen`
-/// - création d'une commande + actions ponctuelles (annulation,
-///   confirmation de réception), utilisées par `CreateOrderModal` et par
-///   les cartes de commande
-///
-/// Aucune règle métier n'est recalculée ici : `peutEtreAnnulee` et
-/// `statutsMarchand` restent dans `OrderModel`, les transitions de statut
-/// et le refus d'annulation hors `EN_ATTENTE` restent dans
-/// `OrderRepository`. Ce contrôleur ne fait que relayer les appels et
-/// exposer un état Loading/Success/Error explicite aux widgets.
 class StudentOrdersController extends ChangeNotifier {
   StudentOrdersController({
     required OrderRepository orderRepository,
@@ -55,10 +39,6 @@ class StudentOrdersController extends ChangeNotifier {
   bool get isCreatingOrder => _isCreatingOrder;
   String? get creationErrorMessage => _creationErrorMessage;
 
-  /// Démarre l'écoute temps réel des commandes de l'étudiant
-  /// (`streamCommandesEtudiant`). À appeler une seule fois, typiquement
-  /// dans le `create` du provider de `StudentOrdersScreen` — la modale de
-  /// création n'en a pas besoin et ne doit pas l'appeler.
   void startListening() {
     _status = StudentOrdersStatus.loading;
     notifyListeners();
@@ -80,8 +60,6 @@ class StudentOrdersController extends ChangeNotifier {
         );
   }
 
-  /// Crée une commande pour [food] en quantité [quantite], avec le mode de
-  /// réception [typeReception]. Retourne `true` si la création a réussi.
   Future<bool> creerCommande({
     required FoodModel food,
     required DeliveryType typeReception,
@@ -131,9 +109,6 @@ class StudentOrdersController extends ChangeNotifier {
     }
   }
 
-  /// L'étudiant confirme la réception d'une commande livrée
-  /// (`EN_COURS_DE_LIVRAISON → LIVREE`). Pour le retrait, l'étudiant n'a
-  /// aucune action : c'est le commerçant qui confirme `RECU` (Dev 4).
   Future<bool> confirmerReception(String idCommande) async {
     try {
       await _orderRepository.mettreAJourStatut(idCommande, OrderStatus.livree);
@@ -145,10 +120,6 @@ class StudentOrdersController extends ChangeNotifier {
     }
   }
 
-  /// Annule une commande. Le repository refuse déjà si le statut n'est plus
-  /// `EN_ATTENTE` (`InvalidOrderTransition`) — le widget ne fait que
-  /// relayer le résultat ; `peutEtreAnnulee` sert uniquement à masquer le
-  /// bouton côté UI, ce n'est pas la source de vérité de la règle.
   Future<bool> annulerCommande(String idCommande) async {
     try {
       await _orderRepository.annulerCommande(idCommande);

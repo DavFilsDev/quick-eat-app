@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/firestore_paths.dart';
 import '../../models/food_model.dart';
 
-/// Contrat d'accès aux documents `menus/{menuId}`.
 abstract class MenuRepository {
   Stream<List<FoodModel>> streamMenus();
   Stream<List<FoodModel>> streamMenusParCommercant(String idCommercant);

@@ -7,22 +7,6 @@ import '../../models/user_model.dart';
 import '../../routes/app_router.dart';
 import '../constants/app_colors.dart';
 
-/// AppBar globale réutilisable QuickEat, présente sur toutes les pages
-/// principales (sauf Connexion / Inscription).
-///
-/// - À gauche : le logo textuel **QuickEat** (couleur primaire).
-/// - À droite : les `actions` éventuelles puis l'**avatar de l'utilisateur
-///   connecté**, chargé dynamiquement depuis `UserModel.photoUrl`.
-/// - Clic sur l'avatar : menu flottant avec l'entrée **Déconnexion**.
-///
-/// La photo provient du `userStream` (fourni en priorité pour les tests) ou
-/// du stream Firestore de l'utilisateur connecté. Sans photo, l'avatar
-/// affiche les initiales du nom complet, sinon une icône `Icons.person`.
-///
-/// La déconnexion (`onLogout`, fourni en priorité pour les tests) signe
-/// l'utilisateur hors Firebase puis redirige vers `/login` avec
-/// `pushNamedAndRemoveUntil` — l'`AuthGate` étant démonté après connexion,
-/// la redirection doit être explicite.
 class QuickEatAppBar extends StatelessWidget implements PreferredSizeWidget {
   const QuickEatAppBar({
     super.key,
@@ -35,27 +19,17 @@ class QuickEatAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.automaticallyImplyLeading = true,
   });
 
-  /// Logo textuel affiché à gauche (défaut : `QuickEat`).
   final String title;
 
-  /// Actions additionnelles placées avant l'avatar (ex: badge commerçant).
   final List<Widget> actions;
 
-  /// Stream de l'utilisateur connecté. Prioritaire sur le stream Firestore
-  /// (injectable pour les tests).
   final Stream<UserModel?>? userStream;
 
-  /// Logique de déconnexion. Prioritaire sur la déconnexion Firebase par
-  /// défaut (injectable pour les tests).
   final Future<void> Function()? onLogout;
 
-  /// Repository d'authentification (défaut : Firestore/Firebase).
   final AuthRepository? authRepository;
   final UserRepository? userRepository;
 
-  /// Affiche la flèche retour implicite quand la page peut "pop" (défaut
-  /// `true`). Sur les pages avec retour intégré au design (bannière
-  /// restaurant), passer `false` pour éviter le doublon.
   final bool automaticallyImplyLeading;
 
   @override
@@ -88,9 +62,6 @@ class QuickEatAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  /// Stream Firestore de l'utilisateur connecté, évalué paresseusement :
-  /// si `userStream` est fourni, aucun appel à Firebase n'est effectué
-  /// (utile pour les tests).
   static Stream<UserModel?>? _streamFirestore(
     AuthRepository? authRepository,
     UserRepository? userRepository,
@@ -173,8 +144,6 @@ class _LogoutMenu extends StatelessWidget {
   }
 }
 
-/// Avatar réseau : `UserModel.photoUrl`. Si l'URL est absente ou en erreur,
-/// bascule sur l'avatar fallback (initiales / icône).
 class _AvatarPhoto extends StatelessWidget {
   const _AvatarPhoto({required this.user});
 
@@ -199,7 +168,6 @@ class _AvatarPhoto extends StatelessWidget {
   }
 }
 
-/// Avatar par défaut : initiales du nom complet, sinon icône `Icons.person`.
 class _AvatarFallback extends StatelessWidget {
   const _AvatarFallback({required this.user});
 

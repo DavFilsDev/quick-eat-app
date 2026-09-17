@@ -1,18 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// import '../../../../../core/widgets/screen_placeholder.dart';
-
-// /// TODO(Dev 3 - feat/student-orders) : suivi temps réel des commandes de
-// /// l'étudiant connecté. Voir maquette `Commandes Étudiant`.
-// class StudentOrdersScreen extends StatelessWidget {
-//   const StudentOrdersScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const ScreenPlaceholder(titre: 'Mes Commandes');
-//   }
-// }
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,15 +11,6 @@ import '../../../../../models/order_model.dart';
 import '../controllers/student_orders_controller.dart';
 import '../widgets/order_card_student.dart';
 
-/// Écran "Mes Commandes" (maquette `Commandes Étudiant`) — écoute temps
-/// réel des commandes de l'étudiant connecté (`streamCommandesEtudiant`).
-///
-/// Le bandeau du haut (logo + icône profil) et la barre de navigation du
-/// bas sont reproduits ici pour coller à la maquette. Si l'app dispose
-/// d'un shell/nav partagé (construit par un autre dev pour les 3 onglets),
-/// ces deux blocs peuvent être retirés au profit du shell commun sans
-/// toucher au reste de l'écran (liste + logique restent identiques).
-/// L'onglet "Profil" est hors périmètre de cette tâche (`feat/profile`).
 class StudentOrdersScreen extends StatelessWidget {
   const StudentOrdersScreen({super.key});
 
@@ -115,8 +91,6 @@ class _StudentOrdersView extends StatelessWidget {
           ],
         ),
       ),
-      // La barre de navigation inférieure est portée par le shell
-      // (`StudentMainLayout`), pas par cette sous-page.
     );
   }
 
@@ -139,8 +113,6 @@ class _StudentOrdersView extends StatelessWidget {
         if (controller.orders.isEmpty) {
           return const Center(child: Text('Aucune commande pour le moment.'));
         }
-        // Responsive : grille sur écran large (tablette/web), liste sur
-        // mobile.
         return LayoutBuilder(
           builder: (context, constraints) {
             if (constraints.maxWidth > 700) {

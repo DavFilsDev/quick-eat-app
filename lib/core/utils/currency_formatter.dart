@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 
-/// Formate un montant en FCFA, ex: 4000 -> "4 000 FCFA".
 class CurrencyFormatter {
   CurrencyFormatter._();
 
