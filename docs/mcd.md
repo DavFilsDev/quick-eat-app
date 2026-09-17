@@ -1,6 +1,6 @@
 # QuickEat - MCD (Modèle Conceptuel de Données)
 
-## 1. Les 4 Entités
+## 1. Les 5 Entités
 
 | Entité | Rôle |
 |--------|------|
@@ -8,6 +8,7 @@
 | **MENU** | Plats proposés par les commerçants |
 | **COMMANDE** | Commandes passées par les étudiants |
 | **DETAIL_COMMANDE** | Produits dans chaque commande |
+| **NOTIFICATION** | Notifications in-app destinées à un utilisateur |
 
 ---
 
@@ -36,6 +37,12 @@ MENU ──||──o{ DETAIL_COMMANDE
 ```
 - Un menu peut apparaître dans plusieurs commandes
 - Un détail concerne un seul menu
+
+```
+UTILISATEUR ──||──o{ NOTIFICATION
+```
+- Un utilisateur reçoit plusieurs notifications
+- Une notification appartient à un seul utilisateur
 
 ---
 
@@ -71,6 +78,20 @@ MENU ──||──o{ DETAIL_COMMANDE
 └─────────────────┘
 ```
 
+```
+┌─────────────────┐
+│  NOTIFICATION   │
+├─────────────────┤
+│ id_notification PK │
+│ id_utilisateur  FK │
+│ titre           │
+│ message         │
+│ id_commande     FK │  (optionnel)
+│ est_lue         │
+│ date_creation   │
+└─────────────────┘
+```
+
 ---
 
 ## 4. Tables de Données
@@ -86,7 +107,8 @@ MENU ──||──o{ DETAIL_COMMANDE
 | mot_de_passe | String | Géré par Firebase Auth |
 | role | String | STUDENT ou MERCHANT |
 | photo_url | String | Photo de profil |
-| campus | String | Campus d'inscription (étudiant ou commerçant) |
+| campus | String | Campus d'inscription (étudiant ou commerçant). Peut être un campus personnalisé saisi via l'option « Autre » lors de l'inscription |
+| notificationsActivees | Boolean | Préférence de réception des notifications in-app (défaut : `true`) |
 | date_creation | Date | Date d'inscription |
 
 ### MENU
@@ -146,54 +168,75 @@ EN_ATTENTE → ACCEPTEE (commerçant) → TERMINEE (commerçant) → RECU (comme
 | quantite | Int | Nombre d'unités |
 | prix_unitaire | Float | Prix unitaire en FCFA |
 
+### NOTIFICATION
+| Champ | Type | Description |
+|-------|------|-------------|
+| idNotification | String (PK) | Identifiant unique de la notification |
+| idUtilisateur | String (FK) | Référence vers l'utilisateur destinataire |
+| titre | String | Titre de la notification |
+| message | String | Contenu du message |
+| idCommande | String (FK) | Référence optionnelle vers la commande concernée |
+| estLue | Boolean | Indique si la notification a été lue (défaut : `false`) |
+| dateCreation | Timestamp | Date de création de la notification |
+
 ---
 
 ## 5. Schéma Firestore
 
 ```
-users/{userId}
+users/{uid}
+  ├── idUser: "uid"
   ├── prenoms: "Moussa"
   ├── nom: "Ndiaye"
   ├── email: "moussa@gmail.com"
-  ├── phone: "90000000"
+  ├── telephone: "+237 90000000"
   ├── role: "STUDENT"
+  ├── photoUrl: "https://..."
   ├── campus: "Campus de Ngoa-Ekéllé"
-  └── createdAt
+  ├── notificationsActivees: true
+  └── dateCreation
 
-merchants/{merchantId}  (optionnel)
-  ├── nom_boutique: "Chez Tanti"
-  ├── localisation: "Yaoundé"
-  └── ownerId
+users/{uid}/notifications/{idNotification}
+  ├── idNotification: "idNotification"
+  ├── idUtilisateur: "uid"
+  ├── titre: "Nouvelle commande"
+  ├── message: "Nouvelle commande pour \"Burger poulet\"."
+  ├── idCommande: "orderId"        (optionnel)
+  ├── estLue: false
+  └── dateCreation
 
 menus/{menuId}
-  ├── name: "Burger poulet"
-  ├── price: 1500
-  ├── category: "Fast Food"
+  ├── idFood: "menuId"
+  ├── nom: "Burger poulet"
+  ├── description: "Burger au poulet grillé"
+  ├── prix: 1500
   ├── imageUrl: "https://..."
-  ├── available: true
-  └── merchantId
+  ├── categorie: "Fast Food"
+  ├── disponible: true
+  └── idCommercant: "uid"
 
 orders/{orderId}
-  ├── studentId
-  ├── merchantId
-  ├── totalAmount: 3000
-  ├── deliveryType: "LIVRAISON"
-  ├── deliveryAddress: "Résidence Campus Ngoa, ch. 12"
-  ├── status: "EN_COURS_DE_LIVRAISON"
-  └── createdAt
+  ├── idCommande: "orderId"
+  ├── idEtudiant: "uid"
+  ├── idCommercant: "uid"
+  ├── dateCommande
+  ├── montantTotal: 3000
+  ├── typeReception: "LIVRAISON"
+  ├── adresseLivraison: "Résidence Campus Ngoa, ch. 12"
+  └── statut: "EN_COURS_DE_LIVRAISON"
 
 orders/{orderId}/items/{itemId}
-  ├── menuId
-  ├── name: "Burger poulet"
-  ├── quantity: 2
-  └── price: 1500
+  ├── idFood: "menuId"
+  ├── nom: "Burger poulet"
+  ├── quantite: 2
+  └── prixUnitaire: 1500
 ```
 
 ---
 
 ## 6. Gestion du Temps Réel
 
-Pour le suivi en temps réel, Firestore écoute le champ `orders.status` :
+Pour le suivi en temps réel, Firestore écoute le champ `orders.statut` :
 
 **Vue étudiant (selon le type de réception)**
 
@@ -207,6 +250,5 @@ Pour le suivi en temps réel, Firestore écoute le champ `orders.status` :
 
 `LIVREE` est confirmée par l'étudiant qui reçoit sa commande ; `RECU` est confirmé par le commerçant lors de la remise sur place. L'étudiant reçoit directement la mise à jour quand le commerçant change le statut.
 
----
+Les notifications in-app sont également diffusées en temps réel : l'application écoute la sous-collection `users/{uid}/notifications` triée par `dateCreation`, ce qui permet d'actualiser le badge de compteur non lues et l'historique sans rechargement manuel.
 
-**Lien du diagramme :** https://www.figma.com/board/xBTz5mNCcZtNMq6SpSExCj
