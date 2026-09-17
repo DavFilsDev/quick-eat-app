@@ -4,24 +4,33 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quickeat/core/errors/failures.dart';
+import 'package:quickeat/data/repositories/notification_repository.dart';
 import 'package:quickeat/data/repositories/order_repository.dart';
 import 'package:quickeat/features/orders/presentation/student/controllers/student_orders_controller.dart';
 import 'package:quickeat/models/enums/delivery_type.dart';
 import 'package:quickeat/models/enums/order_status.dart';
 import 'package:quickeat/models/food_model.dart';
+import 'package:quickeat/models/notification_model.dart';
 import 'package:quickeat/models/order_model.dart';
 
 class MockOrderRepository extends Mock implements OrderRepository {}
 
+class MockNotificationRepository extends Mock
+    implements NotificationRepository {}
+
 class _FakeOrderModel extends Fake implements OrderModel {}
+
+class _FakeNotificationModel extends Fake implements NotificationModel {}
 
 void main() {
   setUpAll(() {
     registerFallbackValue(_FakeOrderModel());
+    registerFallbackValue(_FakeNotificationModel());
     registerFallbackValue(OrderStatus.livree);
   });
 
   late MockOrderRepository mockRepository;
+  late MockNotificationRepository mockNotificationRepository;
   late StudentOrdersController controller;
   late StreamController<List<OrderModel>> streamController;
 
@@ -34,12 +43,14 @@ void main() {
 
   setUp(() {
     mockRepository = MockOrderRepository();
+    mockNotificationRepository = MockNotificationRepository();
     streamController = StreamController<List<OrderModel>>.broadcast();
     when(() => mockRepository.streamCommandesEtudiant(any()))
         .thenAnswer((_) => streamController.stream);
 
     controller = StudentOrdersController(
       orderRepository: mockRepository,
+      notificationRepository: mockNotificationRepository,
       idEtudiant: 'etu1',
     );
   });
@@ -143,6 +154,44 @@ void main() {
         expect(controller.creationErrorMessage, isNotNull);
       },
     );
+
+    test('notifie le commerçant après une création réussie', () async {
+      when(() => mockRepository.creerCommande(any()))
+          .thenAnswer((_) async => 'cmd123');
+      when(() => mockNotificationRepository.creerNotification(any()))
+          .thenAnswer((_) async {});
+
+      await controller.creerCommande(
+        food: food,
+        typeReception: DeliveryType.retrait,
+        quantite: 1,
+      );
+
+      final captured =
+          verify(
+                () =>
+                    mockNotificationRepository.creerNotification(captureAny()),
+              ).captured.single
+              as NotificationModel;
+
+      expect(captured.idUtilisateur, 'com1');
+      expect(captured.idCommande, 'cmd123');
+    });
+
+    test('reste un succès si la notification échoue', () async {
+      when(() => mockRepository.creerCommande(any()))
+          .thenAnswer((_) async => 'cmd123');
+      when(() => mockNotificationRepository.creerNotification(any()))
+          .thenThrow(Exception('offline'));
+
+      final resultat = await controller.creerCommande(
+        food: food,
+        typeReception: DeliveryType.retrait,
+        quantite: 1,
+      );
+
+      expect(resultat, isTrue);
+    });
   });
 
   group('annulerCommande', () {

@@ -2,15 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../../../data/repositories/notification_repository.dart';
 import '../../../../../data/repositories/order_repository.dart';
 import '../../../../../data/repositories/user_repository.dart';
 import '../../../../../models/enums/order_status.dart';
+import '../../../../../models/notification_model.dart';
 import '../../../../../models/order_model.dart';
 import '../../../../../models/user_model.dart';
 
 class MerchantOrdersController extends ChangeNotifier {
   final OrderRepository _orderRepository;
   final UserRepository _userRepository;
+  final NotificationRepository? _notificationRepository;
   final String _merchantId;
 
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
@@ -22,6 +25,7 @@ class MerchantOrdersController extends ChangeNotifier {
     required this._orderRepository,
     required this._userRepository,
     required this._merchantId,
+    this._notificationRepository,
   }) {
     _init();
   }
@@ -70,6 +74,43 @@ class MerchantOrdersController extends ChangeNotifier {
       await _orderRepository.mettreAJourStatut(orderId, newStatus);
     } catch (e) {
       rethrow;
+    }
+    await _notifierStatutEtudiant(orderId, newStatus);
+  }
+
+  Future<void> _notifierStatutEtudiant(
+    String orderId,
+    OrderStatus newStatus,
+  ) async {
+    if (newStatus != OrderStatus.terminee &&
+        newStatus != OrderStatus.enCoursDeLivraison) {
+      return;
+    }
+    final repository = _notificationRepository;
+    if (repository == null) return;
+
+    final index = _allOrders.indexWhere((o) => o.idCommande == orderId);
+    if (index == -1) return;
+    final order = _allOrders[index];
+    if (order.idEtudiant.isEmpty) return;
+
+    final message = newStatus == OrderStatus.terminee
+        ? 'Votre commande est prête à être retirée.'
+        : 'Votre commande est en cours de livraison.';
+
+    try {
+      await repository.creerNotification(
+        NotificationModel(
+          idNotification: '',
+          idUtilisateur: order.idEtudiant,
+          titre: 'Mise à jour de commande',
+          message: message,
+          idCommande: orderId,
+          dateCreation: DateTime.now(),
+        ),
+      );
+    } catch (_) {
+      return;
     }
   }
 

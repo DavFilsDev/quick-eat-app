@@ -6,4 +6,5 @@ class FirestorePaths {
   static const String orders = 'orders';
 
   static const String orderItems = 'items';
+  static const String notifications = 'notifications';
 }

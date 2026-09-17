@@ -48,7 +48,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     return ChangeNotifierProvider(
       create: (_) => _controller,
       child: Scaffold(
-        appBar: const QuickEatAppBar(),
+        appBar: QuickEatAppBar(
+          onOuvrirCommandes: () =>
+              context.read<MainLayoutController?>()?.select(1),
+        ),
         body: Consumer<CatalogController>(
           builder: (context, controller, child) {
             final plats = controller.plats.take(4).toList();

@@ -14,9 +14,15 @@ class MockUserRepository extends Mock implements UserRepository {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
+class _FakeUserModel extends Fake implements UserModel {}
+
 void main() {
   late MockUserRepository mockUserRepository;
   late MockAuthRepository mockAuthRepository;
+
+  setUpAll(() {
+    registerFallbackValue(_FakeUserModel());
+  });
 
   const etudiant = UserModel(
     idUser: 'user-001',
@@ -106,6 +112,51 @@ void main() {
 
     controller.dispose();
   });
+
+  testWidgets('le toggle notifications reflète et persiste la préférence', (
+    tester,
+  ) async {
+    when(() => mockUserRepository.creerOuMettreAJourUtilisateur(any()))
+        .thenAnswer((_) async {});
+    final controller = creerController(etudiant);
+    await afficherVue(tester, controller);
+
+    final toggle = find.byKey(const Key('toggle_notifications'));
+    expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
+
+    await tester.ensureVisible(toggle);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+
+    expect(controller.notificationsActivees, isFalse);
+    verify(() => mockUserRepository.creerOuMettreAJourUtilisateur(any()))
+        .called(1);
+
+    controller.dispose();
+  });
+
+  testWidgets(
+    'le toggle notifications est désactivé si la préférence est false',
+    (tester) async {
+      const sansNotifications = UserModel(
+        idUser: 'user-001',
+        prenoms: 'Awa',
+        nom: 'Diop',
+        email: 'awa.diop@test.com',
+        role: UserRole.student,
+        campus: 'Dakar',
+        notificationsActivees: false,
+      );
+      final controller = creerController(sansNotifications);
+      await afficherVue(tester, controller);
+
+      final toggle = find.byKey(const Key('toggle_notifications'));
+      expect(tester.widget<SwitchListTile>(toggle).value, isFalse);
+
+      controller.dispose();
+    },
+  );
 
   testWidgets('déconnecte puis redirige vers la route login', (tester) async {
     when(() => mockAuthRepository.signOut()).thenAnswer((_) async {});

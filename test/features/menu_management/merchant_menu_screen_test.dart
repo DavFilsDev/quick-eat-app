@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quickeat/data/repositories/menu_repository.dart';
+import 'package:quickeat/data/repositories/notification_repository.dart';
 import 'package:quickeat/features/menu_management/presentation/screens/merchant_menu_screen.dart';
 import 'package:quickeat/features/menu_management/presentation/widgets/menu_item_tile.dart';
 import 'package:quickeat/models/food_model.dart';
-import 'package:quickeat/models/user_model.dart';
+import 'package:quickeat/models/notification_model.dart';
 
 class MockMenuRepository extends Mock implements MenuRepository {}
 
+class MockNotificationRepository extends Mock
+    implements NotificationRepository {}
+
 void main() {
+  late MockNotificationRepository notificationRepository;
+
   const plats = <FoodModel>[
     FoodModel(
       idFood: 'f1',
@@ -39,10 +45,16 @@ void main() {
       home: MerchantMenuScreen(
         menuRepository: repository,
         idCommercant: 'user-004',
-        userStream: const Stream<UserModel?>.empty(),
+        notificationRepository: notificationRepository,
       ),
     );
   }
+
+  setUp(() {
+    notificationRepository = MockNotificationRepository();
+    when(() => notificationRepository.streamNotifications('user-004'))
+        .thenAnswer((_) => Stream.value(const <NotificationModel>[]));
+  });
 
   setUpAll(() {
     registerFallbackValue(

@@ -1,104 +1,93 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:quickeat/core/widgets/quick_eat_app_bar.dart';
-import 'package:quickeat/models/enums/user_role.dart';
-import 'package:quickeat/models/user_model.dart';
-import 'package:quickeat/routes/app_router.dart';
+import 'package:quickeat/data/repositories/notification_repository.dart';
+import 'package:quickeat/features/notifications/presentation/screens/notification_screen.dart';
+import 'package:quickeat/models/notification_model.dart';
+
+class MockNotificationRepository extends Mock
+    implements NotificationRepository {}
 
 void main() {
-  const utilisateur = UserModel(
-    idUser: 'u1',
-    prenoms: 'Marie',
-    nom: 'Kouassi',
-    email: 'marie@example.com',
-    role: UserRole.student,
-    campus: 'Campus A',
-  );
+  late MockNotificationRepository repository;
 
-  Widget sujet({
-    Stream<UserModel?>? stream,
-    Future<void> Function()? onLogout,
-  }) {
+  setUp(() {
+    repository = MockNotificationRepository();
+  });
+
+  NotificationModel notification(String id, {bool estLue = false}) {
+    return NotificationModel(
+      idNotification: id,
+      idUtilisateur: 'u1',
+      titre: 'Titre',
+      message: 'Message',
+      dateCreation: DateTime(2026, 1, 1),
+      estLue: estLue,
+    );
+  }
+
+  Widget sujet({List<NotificationModel>? notifications}) {
+    when(() => repository.streamNotifications('u1'))
+        .thenAnswer((_) => Stream.value(notifications ?? const []));
+
     return MaterialApp(
       home: Scaffold(
         appBar: QuickEatAppBar(
-          userStream: stream ?? Stream.value(utilisateur),
-          onLogout: onLogout,
+          idUtilisateur: 'u1',
+          notificationRepository: repository,
         ),
       ),
     );
   }
 
-  testWidgets('Affiche le titre QuickEat et l\'avatar', (tester) async {
+  testWidgets('affiche le titre QuickEat et la cloche de notifications', (
+    tester,
+  ) async {
     await tester.pumpWidget(sujet());
     await tester.pump();
 
     expect(find.text('QuickEat'), findsOneWidget);
-    expect(find.text('MK'), findsOneWidget);
+    expect(find.byKey(const Key('icone_notifications')), findsOneWidget);
+    expect(find.byKey(const Key('badge_notifications')), findsNothing);
   });
 
-  testWidgets(
-    'Déconnexion : le menu propose "Déconnexion" et exécute onLogout',
-    (tester) async {
-      var deconnecte = false;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            appBar: QuickEatAppBar(
-              userStream: Stream.value(utilisateur),
-              onLogout: () async => deconnecte = true,
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-
-      await tester.tap(find.byKey(const Key('avatar_menu')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Déconnexion'), findsOneWidget);
-      expect(find.byIcon(Icons.logout), findsOneWidget);
-
-      await tester.tap(find.text('Déconnexion'));
-      await tester.pumpAndSettle();
-
-      expect(deconnecte, isTrue);
-    },
-  );
-
-  testWidgets('Redirection vers la route /login après déconnexion', (
+  testWidgets('affiche le badge avec le nombre de notifications non lues', (
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        onGenerateRoute: (settings) {
-          if (settings.name == AppRouter.login) {
-            return MaterialPageRoute(
-              builder: (_) => const Scaffold(body: Text('Écran Connexion')),
-            );
-          }
-          return MaterialPageRoute(builder: (_) => const SizedBox());
-        },
-        home: Scaffold(
-          appBar: QuickEatAppBar(
-            userStream: Stream.value(utilisateur),
-            onLogout: () async {
-              Navigator.of(tester.element(find.byType(QuickEatAppBar)))
-                  .pushNamedAndRemoveUntil(AppRouter.login, (r) => false);
-            },
-          ),
-        ),
+      sujet(
+        notifications: [
+          notification('n1'),
+          notification('n2'),
+          notification('n3', estLue: true),
+        ],
       ),
     );
+    await tester.pump();
 
-    await tester.tap(find.byKey(const Key('avatar_menu')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Déconnexion'));
+    expect(find.byKey(const Key('badge_notifications')), findsOneWidget);
+    expect(find.text('2'), findsOneWidget);
+  });
+
+  testWidgets('ne montre aucun badge lorsque tout est lu', (tester) async {
+    await tester.pumpWidget(
+      sujet(notifications: [notification('n1', estLue: true)]),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('badge_notifications')), findsNothing);
+  });
+
+  testWidgets('ouvre l\'écran des notifications au clic sur la cloche', (
+    tester,
+  ) async {
+    await tester.pumpWidget(sujet());
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('icone_notifications')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Écran Connexion'), findsOneWidget);
-    expect(find.byType(QuickEatAppBar), findsNothing);
+    expect(find.byType(NotificationScreen), findsOneWidget);
   });
 }
