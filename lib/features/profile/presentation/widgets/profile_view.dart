@@ -200,22 +200,6 @@ class ProfileView extends StatelessWidget {
                       value: controller.notificationsActivees,
                       onChanged: controller.basculerNotifications,
                     ),
-                    if (estCommercant)
-                      ListTile(
-                        key: const Key('gerer_mon_menu'),
-                        leading: const Icon(
-                          Icons.restaurant_menu,
-                          color: AppColors.primary,
-                        ),
-                        title: const Text('Gérer mon menu'),
-                        subtitle: const Text(
-                          'Ajouter, modifier ou supprimer vos plats',
-                        ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () =>
-                            Navigator.of(context)
-                                .pushNamed(AppRouter.merchantMenuManagement),
-                      ),
                   ],
                 ),
               ),
