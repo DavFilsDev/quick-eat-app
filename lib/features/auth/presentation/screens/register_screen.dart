@@ -7,7 +7,10 @@ import '../../../../models/enums/user_role.dart';
 import '../../../../routes/app_router.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/auth_text_field.dart';
+import '../widgets/campus_selector.dart';
+import '../widgets/country_code_picker.dart';
 import '../widgets/role_toggle.dart';
+import '../../domain/campus_options.dart';
 import '../../domain/role_detector.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -26,9 +29,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _telephoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _campusPersonnaliseController = TextEditingController();
 
   UserRole _role = UserRole.student;
-  String? _campusSelectionne = 'Campus UAC - Abomey-Calavi';
+  String? _campusSelectionne = campusesPredefinis.first;
+  String _selectedCountryCode = '+261';
   bool _obscurePassword = true;
 
   @override
@@ -54,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _creerCompte() async {
     if (!_formKey.currentState!.validate()) return;
     final fullPhone =
-        '$_selectedCountryCode${_telephoneController.text.trim()}';
+        '$_selectedCountryCode ${_telephoneController.text.trim()}';
 
     final success = await _authController.register(
       email: _emailController.text.trim(),
@@ -62,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       nom: _nomController.text.trim(),
       prenoms: _prenomsController.text.trim(),
       telephone: fullPhone,
-      campus: _campusSelectionne ?? 'Campus UAC - Abomey-Calavi',
+      campus: _campusFinal,
       role: _role,
     );
 
@@ -147,13 +152,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  final List<Map<String, String>> _countryCodes = [
-    {'code': '+229', 'flag': '🇧🇯', 'label': '🇧🇯 +229'},
-    {'code': '+237', 'flag': '🇨🇲', 'label': '🇨🇲 +237'},
-    {'code': '+261', 'flag': '🇲🇬', 'label': '🇲🇬 +261'},
-    {'code': '+33', 'flag': '🇫🇷', 'label': '🇫🇷 +33'},
-  ];
-  String _selectedCountryCode = '+261';
+  String get _campusFinal {
+    if (_campusSelectionne == optionCampusAutre) {
+      final personnalise = _campusPersonnaliseController.text.trim();
+      return personnalise.isEmpty ? campusesPredefinis.first : personnalise;
+    }
+    return _campusSelectionne ?? campusesPredefinis.first;
+  }
 
   @override
   void dispose() {
@@ -163,6 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _telephoneController.dispose();
     _passwordController.dispose();
+    _campusPersonnaliseController.dispose();
     super.dispose();
   }
 
@@ -230,31 +236,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 56,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade400),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedCountryCode,
-                            items: _countryCodes.map((country) {
-                              return DropdownMenuItem<String>(
-                                value: country['code'],
-                                child: Text(
-                                  country['label']!,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() => _selectedCountryCode = val);
-                              }
-                            },
-                          ),
+                      CountryCodePicker(
+                        indicatifSelectionne: _selectedCountryCode,
+                        onIndicatifChange: (pays) => setState(
+                          () => _selectedCountryCode = pays.indicatif,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -282,31 +267,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    initialValue: _campusSelectionne,
-                    decoration: const InputDecoration(
-                      labelText: 'Ton Campus principal',
-                      prefixIcon: Icon(Icons.school_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Campus UAC - Abomey-Calavi',
-                        child: Text('Campus UAC - Abomey-Calavi'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Campus de Ngoa-Ekéllé',
-                        child: Text('Campus de Ngoa-Ekéllé'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Campus Ankatso',
-                        child: Text('Campus Ankatso'),
-                      ),
-                    ],
+                  CampusSelector(
+                    selection: _campusSelectionne,
                     onChanged: (val) =>
                         setState(() => _campusSelectionne = val),
+                    customController: _campusPersonnaliseController,
                   ),
                   const SizedBox(height: 14),
                   AuthTextField(

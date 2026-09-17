@@ -1,0 +1,77 @@
+import 'country_dial_code.dart';
+
+const List<CountryDialCode> indicatifsAfricains = [
+  CountryDialCode(pays: 'Afrique du Sud', indicatif: '+27', isoCode: 'ZA'),
+  CountryDialCode(pays: 'Algérie', indicatif: '+213', isoCode: 'DZ'),
+  CountryDialCode(pays: 'Angola', indicatif: '+244', isoCode: 'AO'),
+  CountryDialCode(pays: 'Bénin', indicatif: '+229', isoCode: 'BJ'),
+  CountryDialCode(pays: 'Botswana', indicatif: '+267', isoCode: 'BW'),
+  CountryDialCode(pays: 'Burkina Faso', indicatif: '+226', isoCode: 'BF'),
+  CountryDialCode(pays: 'Burundi', indicatif: '+257', isoCode: 'BI'),
+  CountryDialCode(pays: 'Cabo Verde', indicatif: '+238', isoCode: 'CV'),
+  CountryDialCode(pays: 'Cameroun', indicatif: '+237', isoCode: 'CM'),
+  CountryDialCode(pays: 'Comores', indicatif: '+269', isoCode: 'KM'),
+  CountryDialCode(pays: 'Congo-Brazzaville', indicatif: '+242', isoCode: 'CG'),
+  CountryDialCode(pays: "Côte d'Ivoire", indicatif: '+225', isoCode: 'CI'),
+  CountryDialCode(pays: 'Djibouti', indicatif: '+253', isoCode: 'DJ'),
+  CountryDialCode(pays: 'Égypte', indicatif: '+20', isoCode: 'EG'),
+  CountryDialCode(pays: 'Érythrée', indicatif: '+291', isoCode: 'ER'),
+  CountryDialCode(pays: 'Eswatini', indicatif: '+268', isoCode: 'SZ'),
+  CountryDialCode(pays: 'Éthiopie', indicatif: '+251', isoCode: 'ET'),
+  CountryDialCode(pays: 'Gabon', indicatif: '+241', isoCode: 'GA'),
+  CountryDialCode(pays: 'Gambie', indicatif: '+220', isoCode: 'GM'),
+  CountryDialCode(pays: 'Ghana', indicatif: '+233', isoCode: 'GH'),
+  CountryDialCode(pays: 'Guinée', indicatif: '+224', isoCode: 'GN'),
+  CountryDialCode(pays: 'Guinée équatoriale', indicatif: '+240', isoCode: 'GQ'),
+  CountryDialCode(pays: 'Guinée-Bissau', indicatif: '+245', isoCode: 'GW'),
+  CountryDialCode(pays: 'Kenya', indicatif: '+254', isoCode: 'KE'),
+  CountryDialCode(pays: 'Lesotho', indicatif: '+266', isoCode: 'LS'),
+  CountryDialCode(pays: 'Liberia', indicatif: '+231', isoCode: 'LR'),
+  CountryDialCode(pays: 'Libye', indicatif: '+218', isoCode: 'LY'),
+  CountryDialCode(pays: 'Madagascar', indicatif: '+261', isoCode: 'MG'),
+  CountryDialCode(pays: 'Malawi', indicatif: '+265', isoCode: 'MW'),
+  CountryDialCode(pays: 'Mali', indicatif: '+223', isoCode: 'ML'),
+  CountryDialCode(pays: 'Maroc', indicatif: '+212', isoCode: 'MA'),
+  CountryDialCode(pays: 'Maurice', indicatif: '+230', isoCode: 'MU'),
+  CountryDialCode(pays: 'Mauritanie', indicatif: '+222', isoCode: 'MR'),
+  CountryDialCode(pays: 'Mozambique', indicatif: '+258', isoCode: 'MZ'),
+  CountryDialCode(pays: 'Namibie', indicatif: '+264', isoCode: 'NA'),
+  CountryDialCode(pays: 'Niger', indicatif: '+227', isoCode: 'NE'),
+  CountryDialCode(pays: 'Nigeria', indicatif: '+234', isoCode: 'NG'),
+  CountryDialCode(pays: 'Ouganda', indicatif: '+256', isoCode: 'UG'),
+  CountryDialCode(
+    pays: 'République centrafricaine',
+    indicatif: '+236',
+    isoCode: 'CF',
+  ),
+  CountryDialCode(
+    pays: 'République démocratique du Congo',
+    indicatif: '+243',
+    isoCode: 'CD',
+  ),
+  CountryDialCode(pays: 'Rwanda', indicatif: '+250', isoCode: 'RW'),
+  CountryDialCode(
+    pays: 'Sao Tomé-et-Principe',
+    indicatif: '+239',
+    isoCode: 'ST',
+  ),
+  CountryDialCode(pays: 'Sénégal', indicatif: '+221', isoCode: 'SN'),
+  CountryDialCode(pays: 'Seychelles', indicatif: '+248', isoCode: 'SC'),
+  CountryDialCode(pays: 'Sierra Leone', indicatif: '+232', isoCode: 'SL'),
+  CountryDialCode(pays: 'Somalie', indicatif: '+252', isoCode: 'SO'),
+  CountryDialCode(pays: 'Soudan', indicatif: '+249', isoCode: 'SD'),
+  CountryDialCode(pays: 'Soudan du Sud', indicatif: '+211', isoCode: 'SS'),
+  CountryDialCode(pays: 'Tanzanie', indicatif: '+255', isoCode: 'TZ'),
+  CountryDialCode(pays: 'Tchad', indicatif: '+235', isoCode: 'TD'),
+  CountryDialCode(pays: 'Togo', indicatif: '+228', isoCode: 'TG'),
+  CountryDialCode(pays: 'Tunisie', indicatif: '+216', isoCode: 'TN'),
+  CountryDialCode(pays: 'Zambie', indicatif: '+260', isoCode: 'ZM'),
+  CountryDialCode(pays: 'Zimbabwe', indicatif: '+263', isoCode: 'ZW'),
+];
+
+CountryDialCode? indicatifParCode(String code) {
+  for (final pays in indicatifsAfricains) {
+    if (pays.indicatif == code) return pays;
+  }
+  return null;
+}
