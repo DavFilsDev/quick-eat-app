@@ -3,13 +3,32 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quickeat/features/catalog/presentation/controllers/catalog_controller.dart';
+import 'package:quickeat/models/enums/user_role.dart';
 import 'package:quickeat/models/food_model.dart';
+import 'package:quickeat/models/user_model.dart';
 import 'package:quickeat/data/repositories/menu_repository.dart';
 import 'package:quickeat/data/repositories/user_repository.dart';
 
 class MockMenuRepository extends Mock implements MenuRepository {}
 
 class MockUserRepository extends Mock implements UserRepository {}
+
+UserModel _utilisateur({
+  required String id,
+  required String prenoms,
+  required String nom,
+  required String campus,
+  UserRole role = UserRole.merchant,
+}) {
+  return UserModel(
+    idUser: id,
+    prenoms: prenoms,
+    nom: nom,
+    email: '$id@test.com',
+    role: role,
+    campus: campus,
+  );
+}
 
 void main() {
   group('CatalogController', () {
@@ -19,7 +38,7 @@ void main() {
     late MockUserRepository mockUserRepository;
 
     setUp(() {
-      streamController = StreamController<List<FoodModel>>();
+      streamController = StreamController<List<FoodModel>>.broadcast();
       mockMenuRepository = MockMenuRepository();
       mockUserRepository = MockUserRepository();
       when(() => mockMenuRepository.streamMenus())
@@ -151,5 +170,127 @@ void main() {
       expect(controller.plats.length, 1);
       expect(controller.plats.first.nom, 'Pizza Margherita');
     });
+
+    test(
+      'filtre strictement plats et restaurants selon le campus étudiant',
+      () async {
+        when(() => mockUserRepository.obtenirUtilisateur(any()))
+            .thenAnswer((invocation) async {
+              final id = invocation.positionalArguments.first as String;
+              return switch (id) {
+                'etudiant-1' => _utilisateur(
+                  id: 'etudiant-1',
+                  prenoms: 'Moussa',
+                  nom: 'Ndiaye',
+                  campus: 'Campus de Ngoa-Ekéllé',
+                  role: UserRole.student,
+                ),
+                'user-004' => _utilisateur(
+                  id: 'user-004',
+                  prenoms: 'Amina',
+                  nom: 'Diallo',
+                  campus: 'Campus de Ngoa-Ekéllé',
+                ),
+                'user-005' => _utilisateur(
+                  id: 'user-005',
+                  prenoms: 'Jean-Paul',
+                  nom: 'Mbarga',
+                  campus: 'Campus de Melen',
+                ),
+                _ => null,
+              };
+            });
+
+        controller.dispose();
+        controller = CatalogController(
+          menuRepository: mockMenuRepository,
+          userRepository: mockUserRepository,
+          idEtudiant: 'etudiant-1',
+        );
+        await _viderMicrotaches();
+
+        streamController.add(<FoodModel>[
+          FoodModel(
+            idFood: 'food-001',
+            nom: 'Burger Poulet',
+            prix: 1500,
+            disponible: true,
+            idCommercant: 'user-004',
+          ),
+          FoodModel(
+            idFood: 'food-002',
+            nom: 'Pizza Margherita',
+            prix: 3500,
+            disponible: true,
+            idCommercant: 'user-005',
+          ),
+        ]);
+        await _viderMicrotaches();
+
+        expect(controller.plats.length, 1);
+        expect(controller.plats.single.idCommercant, 'user-004');
+        expect(controller.restaurantsDisponibles, ['user-004']);
+        expect(controller.getNomRestaurant('user-004'), 'Amina Diallo');
+        expect(controller.nomsRestaurants, isNot(contains('Restaurant')));
+      },
+    );
+
+    test(
+      'charge les noms réels et filtre par restaurant sélectionné',
+      () async {
+        when(() => mockUserRepository.obtenirUtilisateur(any()))
+            .thenAnswer((invocation) async {
+              final id = invocation.positionalArguments.first as String;
+              return switch (id) {
+                'user-004' => _utilisateur(
+                  id: 'user-004',
+                  prenoms: 'Amina',
+                  nom: 'Diallo',
+                  campus: 'Campus de Ngoa-Ekéllé',
+                ),
+                'user-005' => _utilisateur(
+                  id: 'user-005',
+                  prenoms: 'Jean-Paul',
+                  nom: 'Mbarga',
+                  campus: 'Campus de Melen',
+                ),
+                _ => null,
+              };
+            });
+
+        streamController.add(<FoodModel>[
+          FoodModel(
+            idFood: 'food-001',
+            nom: 'Burger Poulet',
+            prix: 1500,
+            disponible: true,
+            idCommercant: 'user-004',
+          ),
+          FoodModel(
+            idFood: 'food-002',
+            nom: 'Pizza Margherita',
+            prix: 3500,
+            disponible: true,
+            idCommercant: 'user-005',
+          ),
+        ]);
+        await _viderMicrotaches();
+
+        expect(controller.nomsRestaurants, contains('Amina Diallo'));
+        expect(controller.nomsRestaurants, contains('Jean-Paul Mbarga'));
+        expect(controller.nomsRestaurants, isNot(contains('Restaurant')));
+
+        controller.setRestaurantParNom('Amina Diallo');
+
+        expect(controller.plats.length, 1);
+        expect(controller.plats.single.idCommercant, 'user-004');
+      },
+    );
   });
+}
+
+Future<void> _viderMicrotaches() async {
+  for (var i = 0; i < 6; i++) {
+    await Future<void>.delayed(Duration.zero);
+  }
 }

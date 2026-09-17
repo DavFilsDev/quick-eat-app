@@ -11,13 +11,15 @@ class CatalogController extends ChangeNotifier {
   CatalogController({
     required this.menuRepository,
     required this.userRepository,
+    this.idEtudiant,
   }) {
     _subscription = menuRepository.streamMenus().listen(_onMenus);
-    _chargerCommercants();
+    _chargerCampusEtudiant();
   }
 
   final MenuRepository menuRepository;
   final UserRepository userRepository;
+  final String? idEtudiant;
 
   StreamSubscription<List<FoodModel>>? _subscription;
 
@@ -28,6 +30,16 @@ class CatalogController extends ChangeNotifier {
   String? _categorieSelectionnee;
   String? _campusSelectionne;
 
+  bool _chargementCommercantsEnCours = false;
+  bool _rechargerCommercants = false;
+  bool _disposed = false;
+
+  final Map<String, String> _nomsCommercants = {};
+
+  final Map<String, String> _campusesCommercants = {};
+
+  final Set<String> _commercantsCharges = {};
+
   String get campusSelectionne => _campusSelectionne ?? 'Tous';
 
   String get restaurantSelectionne => _idCommercantSelectionne == null
@@ -35,10 +47,6 @@ class CatalogController extends ChangeNotifier {
       : getNomRestaurant(_idCommercantSelectionne!);
 
   String get categorieSelectionnee => _categorieSelectionnee ?? 'Tous';
-
-  final Map<String, String> _nomsCommercants = {};
-
-  final Map<String, String> _campusesCommercants = {};
 
   List<FoodModel> get plats => _platsFiltres;
 
@@ -108,21 +116,42 @@ class CatalogController extends ChangeNotifier {
   void _onMenus(List<FoodModel> plats) {
     _tousLesPlats = plats.where((m) => m.disponible).toList();
     _applyFiltres();
-    notifyListeners();
+    _chargerCommercants();
+  }
+
+  Future<void> _chargerCampusEtudiant() async {
+    final idEtudiant = this.idEtudiant;
+    if (idEtudiant == null || idEtudiant.isEmpty) return;
+    final user = await userRepository.obtenirUtilisateur(idEtudiant);
+    if (user == null || user.campus.isEmpty) return;
+    _campusSelectionne = user.campus;
+    _applyFiltres();
+    await _chargerCommercants();
   }
 
   Future<void> _chargerCommercants() async {
-    final ids = _tousLesPlats.map((m) => m.idCommercant).toSet().toList();
-    for (final id in ids) {
-      final user = await userRepository.obtenirUtilisateur(id);
-      if (user != null) {
-        _nomsCommercants[id] = user.nomComplet;
-        if (user.campus.isNotEmpty) {
-          _campusesCommercants[id] = user.campus;
+    if (_chargementCommercantsEnCours) {
+      _rechargerCommercants = true;
+      return;
+    }
+    _chargementCommercantsEnCours = true;
+    do {
+      _rechargerCommercants = false;
+      final ids = _tousLesPlats.map((m) => m.idCommercant).toSet();
+      for (final id in ids) {
+        if (_commercantsCharges.contains(id)) continue;
+        final user = await userRepository.obtenirUtilisateur(id);
+        _commercantsCharges.add(id);
+        if (user != null) {
+          _nomsCommercants[id] = user.nomComplet;
+          if (user.campus.isNotEmpty) {
+            _campusesCommercants[id] = user.campus;
+          }
         }
       }
-    }
-    notifyListeners();
+    } while (_rechargerCommercants);
+    _chargementCommercantsEnCours = false;
+    _applyFiltres();
   }
 
   void setRecherche(String value) {
@@ -141,6 +170,7 @@ class CatalogController extends ChangeNotifier {
   }
 
   void _applyFiltres() {
+    if (_disposed) return;
     _platsFiltres = _tousLesPlats.where((m) {
       if (_idCommercantSelectionne != null &&
           m.idCommercant != _idCommercantSelectionne) {
@@ -166,6 +196,7 @@ class CatalogController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _subscription?.cancel();
     super.dispose();
   }

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,6 +31,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     _controller = CatalogController(
       menuRepository: FirestoreMenuRepository(),
       userRepository: FirestoreUserRepository(),
+      idEtudiant: FirebaseAuth.instance.currentUser?.uid,
     );
   }
 
@@ -49,7 +51,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
         appBar: const QuickEatAppBar(),
         body: Consumer<CatalogController>(
           builder: (context, controller, child) {
-            final plats = controller.plats;
+            final plats = controller.plats.take(4).toList();
             final restaurantIds = controller.restaurantsDisponibles;
 
             return SingleChildScrollView(
@@ -118,7 +120,12 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   if (plats.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Center(child: Text('Aucun plat disponible')),
+                      child: Center(
+                        child: Text(
+                          "Il n'y a pas encore de plats disponibles dans votre campus.",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     )
                   else
                     ListView.builder(
@@ -152,7 +159,12 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   if (restaurantIds.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Center(child: Text('Aucun restaurant trouvé')),
+                      child: Center(
+                        child: Text(
+                          "Pour l'instant, il n'y a pas encore de restaurant dans votre campus.",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     )
                   else
                     ListView.builder(
