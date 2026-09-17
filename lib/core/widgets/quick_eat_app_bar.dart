@@ -150,7 +150,8 @@ class _LogoutMenu extends StatelessWidget {
     return PopupMenuButton<String>(
       key: const Key('avatar_menu'),
       tooltip: 'Compte',
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.zero,
+      position: PopupMenuPosition.under,
       onSelected: (_) => onLogout(),
       itemBuilder: (context) => const [
         PopupMenuItem(
