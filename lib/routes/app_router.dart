@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/catalog/presentation/screens/restaurant_detail_screen.dart';
-import '../features/catalog/presentation/screens/student_home_screen.dart';
 import '../features/menu_management/presentation/screens/merchant_menu_screen.dart';
-import '../features/orders/presentation/merchant/screens/merchant_home_screen.dart';
 import '../features/orders/presentation/merchant/screens/merchant_order_detail_screen.dart';
 import '../features/orders/presentation/student/screens/student_orders_screen.dart';
 import '../features/profile/presentation/screens/merchant_profile_screen.dart';
 import '../features/profile/presentation/screens/student_profile_screen.dart';
+import '../features/shell/presentation/layouts/merchant_main_layout.dart';
+import '../features/shell/presentation/layouts/student_main_layout.dart';
 
 /// Toutes les routes de l'app sont déclarées ICI, une seule fois, par le
 /// Tech Lead, AVANT le démarrage du sprint. Chaque développeur crée
@@ -49,7 +49,7 @@ class AppRouter {
       case register:
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
       case studentHome:
-        return MaterialPageRoute(builder: (_) => const StudentHomeScreen());
+        return MaterialPageRoute(builder: (_) => const StudentMainLayout());
       case restaurantDetail:
         return MaterialPageRoute(
           builder: (_) => RestaurantDetailScreen(
@@ -59,7 +59,7 @@ class AppRouter {
       case studentOrders:
         return MaterialPageRoute(builder: (_) => const StudentOrdersScreen());
       case merchantHome:
-        return MaterialPageRoute(builder: (_) => const MerchantHomeScreen());
+        return MaterialPageRoute(builder: (_) => const MerchantMainLayout());
       case merchantOrderDetail:
         return MaterialPageRoute(
           builder: (_) => MerchantOrderDetailScreen(
