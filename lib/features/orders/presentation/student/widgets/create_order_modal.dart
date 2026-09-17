@@ -141,7 +141,7 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
                       Expanded(
                         child: _ModeReceptionCard(
                           key: const Key('choix_livraison'),
-                          icon: Icons.two_wheeler,
+                          icon: Icons.directions_walk,
                           label: 'Livraison',
                           selectionnee:
                               _typeReception == DeliveryType.livraison,

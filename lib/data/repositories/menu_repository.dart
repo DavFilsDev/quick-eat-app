@@ -41,18 +41,21 @@ class FirestoreMenuRepository implements MenuRepository {
 
   @override
   Future<String> creerMenu(FoodModel menu) async {
-    final doc = await _menus.add(menu.toMap());
+    final doc = _menus.doc();
+    final data = menu.toMap()..['idFood'] = doc.id;
+    await doc.set(data);
     return doc.id;
   }
 
   @override
   Future<void> mettreAJourMenu(FoodModel menu) =>
-      _menus.doc(menu.idFood).update(menu.toMap());
+      _menus.doc(menu.idFood).set(menu.toMap(), SetOptions(merge: true));
 
   @override
   Future<void> supprimerMenu(String idMenu) => _menus.doc(idMenu).delete();
 
   @override
-  Future<void> changerDisponibilite(String idMenu, bool disponible) =>
-      _menus.doc(idMenu).update({'disponible': disponible});
+  Future<void> changerDisponibilite(String idMenu, bool disponible) => _menus
+      .doc(idMenu)
+      .set({'disponible': disponible}, SetOptions(merge: true));
 }

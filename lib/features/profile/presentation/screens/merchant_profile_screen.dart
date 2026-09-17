@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/widgets/screen_placeholder.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/quick_eat_app_bar.dart';
+import '../widgets/profile_scope.dart';
+import '../widgets/profile_view.dart';
 
 class MerchantProfileScreen extends StatelessWidget {
   const MerchantProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const ScreenPlaceholder(titre: 'Profil Commerçant');
+    return ProfileScope(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: const QuickEatAppBar(),
+        body: const ProfileView(estCommercant: true),
+      ),
+    );
   }
 }
