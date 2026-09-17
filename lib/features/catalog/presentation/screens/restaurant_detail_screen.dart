@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/quick_eat_app_bar.dart';
 import '../../../../data/repositories/menu_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../routes/app_router.dart';
@@ -49,13 +50,14 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     return ChangeNotifierProvider(
       create: (_) => _controller,
       child: Scaffold(
+        appBar: const QuickEatAppBar(automaticallyImplyLeading: false),
         body: Column(
           children: [
             // Bannière du restaurant
             Consumer<CatalogController>(
               builder: (context, controller, child) {
                 return Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 48, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Stack(

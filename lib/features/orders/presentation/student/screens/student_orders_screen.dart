@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_text_styles.dart';
+import '../../../../../core/widgets/quick_eat_app_bar.dart';
 import '../../../../../data/repositories/order_repository.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/order_model.dart';
@@ -104,10 +105,11 @@ class _StudentOrdersView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: const QuickEatAppBar(),
       body: SafeArea(
+        top: false,
         child: Column(
           children: [
-            const _EnTeteQuickEat(),
             _EnTeteMesCommandes(nbActives: nbActives),
             Expanded(child: _corps(controller, context)),
           ],
@@ -170,36 +172,6 @@ class _StudentOrdersView extends StatelessWidget {
       onConfirmReception: () =>
           _confirmerReception(context, commande.idCommande),
       onCancel: () => _annuler(context, commande.idCommande),
-    );
-  }
-}
-
-class _EnTeteQuickEat extends StatelessWidget {
-  const _EnTeteQuickEat();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'QuickEat',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          // Profil hors périmètre de cette tâche (feat/student-orders).
-          const CircleAvatar(
-            radius: 18,
-            backgroundColor: AppColors.primary,
-            child: Icon(Icons.person, color: Colors.white, size: 20),
-          ),
-        ],
-      ),
     );
   }
 }

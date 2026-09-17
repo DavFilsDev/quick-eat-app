@@ -9,7 +9,7 @@ import '../controllers/catalog_controller.dart';
 import '../widgets/category_filter_chip.dart';
 import '../widgets/food_card.dart';
 import '../widgets/restaurant_card.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/quick_eat_app_bar.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -45,22 +45,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     return ChangeNotifierProvider(
       create: (_) => _controller,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'QuickEat',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.account_circle, size: 32),
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRouter.studentProfile),
-            ),
-          ],
-        ),
+        appBar: const QuickEatAppBar(),
         body: Consumer<CatalogController>(
           builder: (context, controller, child) {
             final plats = controller.plats;
