@@ -46,6 +46,9 @@ entre l'accès aux données, les modèles et l'interface.
   (domaines universitaires pour les étudiants, domaines publics neutres, autres
   domaines assimilés aux commerçants), complétée par un choix explicite du rôle
   lors de l'inscription.
+- Inscription assistée : sélecteur d'indicatif téléphonique parmi 54 pays
+  africains (recherche par nom ou par code) et choix du campus avec l'option
+  « Autre » permettant de saisir un campus personnalisé.
 - Redirection automatique après connexion vers l'espace correspondant au rôle
   (`AuthGate`).
 - Édition du profil, réinitialisation du mot de passe par email et déconnexion.
@@ -62,13 +65,31 @@ entre l'accès aux données, les modèles et l'interface.
 
 ### Espace commerçant
 
+- Navigation par onglets : **Accueil**, **Menus** et **Profil**.
 - Tableau de bord des commandes entrantes en temps réel, avec compteur des
   commandes en cours et détail de chaque commande.
 - Mise à jour du statut des commandes selon le type de réception.
-- Gestion complète du menu (création, modification, suppression d'un plat) et
-  activation ou désactivation de la disponibilité d'un plat.
-- Profil du commerçant incluant les informations du stand et un accès direct à
-  la gestion du menu.
+- Écran de gestion complète du menu (`MerchantMenuScreen`) accessible depuis
+  l'onglet **Menus** : création, modification et suppression d'un plat, et
+  activation ou désactivation de sa disponibilité.
+- Recherche textuelle par nom, filtre par catégories (y compris la catégorie
+  personnalisée « Autre ») et tri par prix croissant ou décroissant.
+- Profil du commerçant incluant les informations du stand.
+
+### Notifications in-app
+
+- Cloche de notification (`NotificationBell`) intégrée à l'AppBar commune
+  (`QuickEatAppBar`), avec badge dynamique du nombre de notifications non lues.
+- Historique complet accessible depuis la cloche (`NotificationScreen`), avec
+  distinction visuelle des notifications lues et non lues et horodatage relatif.
+- Notifications générées automatiquement : nouvelle commande côté commerçant,
+  et commande prête (retrait) ou en cours de livraison côté étudiant.
+- À l'ouverture d'une notification, redirection vers l'onglet **Commandes** de
+  l'espace concerné ; la notification est alors marquée comme lue.
+- Préférence d'activation ou de désactivation persistée dans le profil
+  (`users/{uid}.notificationsActivees`).
+- L'AppBar affiche désormais la cloche à la place de l'avatar et du menu de
+  déconnexion ; la déconnexion reste accessible depuis le profil.
 
 ### Cycle de vie des commandes
 
@@ -131,7 +152,8 @@ Document `users/{userId}` :
 | `telephone` | string | Numéro de téléphone |
 | `role` | string | `STUDENT` ou `MERCHANT` |
 | `photoUrl` | string | URL de la photo de profil |
-| `campus` | string | Campus de rattachement |
+| `campus` | string | Campus de rattachement (prédéfini ou personnalisé) |
+| `notificationsActivees` | boolean | Préférence de réception des notifications in-app (défaut : `true`) |
 | `dateCreation` | timestamp | Date de création du compte |
 
 ### Collection `menus`
@@ -172,6 +194,20 @@ Document `orders/{orderId}/items/{itemId}` :
 | `nom` | string | Nom du plat au moment de la commande |
 | `quantite` | number | Quantité commandée |
 | `prixUnitaire` | number | Prix unitaire en FCFA |
+
+### Sous-collection `users/{uid}/notifications`
+
+Document `users/{uid}/notifications/{idNotification}` :
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| `idNotification` | string | Identifiant de la notification |
+| `idUtilisateur` | string | Référence à l'utilisateur destinataire |
+| `titre` | string | Titre de la notification |
+| `message` | string | Contenu du message |
+| `idCommande` | string | Référence optionnelle à la commande concernée |
+| `estLue` | boolean | Indique si la notification a été lue |
+| `dateCreation` | timestamp | Date de création de la notification |
 
 ---
 
@@ -314,11 +350,14 @@ Le workflow GitHub Actions
 La suite de tests couvre les briques principales de l'application :
 
 - Détection de rôle et validation des formulaires d'authentification.
+- Sélecteur d'indicatif téléphonique africain et campus personnalisé.
 - Contrôleur du catalogue (regroupement par commerçant, catégories, recherche).
 - Contrôleur et modale de commande côté étudiant, carte de commande.
 - Contrôleur des commandes côté commerçant.
-- Formulaires et contrôleur de gestion du menu.
-- Écrans de profil (affichage selon le rôle, déconnexion).
+- Formulaires, recherche, filtres, tri et contrôleur de gestion du menu.
+- Notifications : contrôleur, écran d'historique, cloche et badge.
+- Écrans de profil (affichage selon le rôle, déconnexion, préférence de
+  notifications).
 - Barre de navigation et données de démonstration.
 
 ```bash
@@ -345,11 +384,12 @@ lib/
 │   └── repositories/         # Contrats et implémentations Firestore
 ├── models/
 │   ├── enums/                # UserRole, OrderStatus, DeliveryType
-│   └── *.dart                # UserModel, FoodModel, OrderModel, OrderItemModel
+│   └── *.dart                # UserModel, FoodModel, OrderModel, OrderItemModel, NotificationModel
 ├── features/
-│   ├── auth/                 # Authentification et détection de rôle
+│   ├── auth/                 # Authentification, indicatifs et détection de rôle
 │   ├── catalog/              # Accueil étudiant et détail restaurant
-│   ├── menu_management/      # Gestion du menu commerçant
+│   ├── menu_management/      # Gestion du menu commerçant (recherche, filtres, tri)
+│   ├── notifications/        # Cloche, historique et contrôleur de notifications
 │   ├── orders/               # Commandes étudiant et commerçant
 │   ├── profile/              # Profil étudiant et commerçant
 │   └── shell/                # Mise en page et navigation principale
@@ -378,7 +418,8 @@ lib/
 - Il n'existe pas de panier persistant : la commande est créée directement
   depuis la fiche d'un plat.
 - Le paiement en ligne n'est pas implémenté.
-- Le réglage des notifications est local à la session et n'est pas persisté.
+- Les notifications sont uniquement in-app : aucun envoi push système
+  (Firebase Cloud Messaging) n'est implémenté.
 - La suppression d'un plat est définitive, sans corbeille.
 - Les images des plats sont fournies via une URL, sans téléversement de fichier.
 
