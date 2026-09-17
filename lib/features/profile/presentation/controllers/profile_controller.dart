@@ -44,6 +44,7 @@ class ProfileController extends ChangeNotifier {
         .listen(
           (user) {
             _user = user;
+            _notificationsActivees = user?.notificationsActivees ?? true;
             _status = ProfileStatus.success;
             notifyListeners();
           },
@@ -106,9 +107,21 @@ class ProfileController extends ChangeNotifier {
 
   Future<void> seDeconnecter() => _authRepository.signOut();
 
-  void basculerNotifications(bool value) {
+  Future<void> basculerNotifications(bool value) async {
     _notificationsActivees = value;
     notifyListeners();
+
+    final actuel = _user;
+    if (actuel == null) return;
+
+    try {
+      await _userRepository.creerOuMettreAJourUtilisateur(
+        actuel.copyWith(notificationsActivees: value),
+      );
+    } catch (error) {
+      _errorMessage = _messageFrom(error);
+      notifyListeners();
+    }
   }
 
   String _messageFrom(Object error) => Failure.fromException(error).message;

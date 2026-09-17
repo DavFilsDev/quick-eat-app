@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../data/repositories/notification_repository.dart';
 import '../../../../../data/repositories/order_repository.dart';
 import '../../../../../data/repositories/user_repository.dart';
 import '../controllers/merchant_orders_controller.dart';
@@ -37,6 +38,7 @@ class _MerchantOrdersScopeState extends State<MerchantOrdersScope> {
     _controller ??= MerchantOrdersController(
       orderRepository: FirestoreOrderRepository(),
       userRepository: FirestoreUserRepository(),
+      notificationRepository: FirestoreNotificationRepository(),
       merchantId: FirebaseAuth.instance.currentUser?.uid ?? '',
     );
     return ChangeNotifierProvider<MerchantOrdersController>(

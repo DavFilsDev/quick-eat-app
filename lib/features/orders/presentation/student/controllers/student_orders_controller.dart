@@ -4,10 +4,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../../core/errors/failures.dart';
+import '../../../../../data/repositories/notification_repository.dart';
 import '../../../../../data/repositories/order_repository.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/food_model.dart';
+import '../../../../../models/notification_model.dart';
 import '../../../../../models/order_item_model.dart';
 import '../../../../../models/order_model.dart';
 
@@ -17,12 +19,18 @@ class StudentOrdersController extends ChangeNotifier {
   StudentOrdersController({
     required OrderRepository orderRepository,
     required String idEtudiant,
-  }) : this._(orderRepository, idEtudiant);
+    NotificationRepository? notificationRepository,
+  }) : this._(orderRepository, idEtudiant, notificationRepository);
 
-  StudentOrdersController._(this._orderRepository, this._idEtudiant);
+  StudentOrdersController._(
+    this._orderRepository,
+    this._idEtudiant,
+    this._notificationRepository,
+  );
 
   final OrderRepository _orderRepository;
   final String _idEtudiant;
+  final NotificationRepository? _notificationRepository;
 
   StreamSubscription<List<OrderModel>>? _subscription;
 
@@ -92,7 +100,12 @@ class StudentOrdersController extends ChangeNotifier {
         items: [item],
       );
 
-      await _orderRepository.creerCommande(commande);
+      final idCommande = await _orderRepository.creerCommande(commande);
+      await _notifierCommercant(
+        idCommercant: food.idCommercant,
+        idCommande: idCommande,
+        nomPlat: food.nom,
+      );
       _isCreatingOrder = false;
       notifyListeners();
       return true;
@@ -144,6 +157,29 @@ class StudentOrdersController extends ChangeNotifier {
       _errorMessage = 'Une erreur est survenue. Réessayez.';
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<void> _notifierCommercant({
+    required String idCommercant,
+    required String idCommande,
+    required String nomPlat,
+  }) async {
+    final repository = _notificationRepository;
+    if (repository == null || idCommercant.isEmpty) return;
+    try {
+      await repository.creerNotification(
+        NotificationModel(
+          idNotification: '',
+          idUtilisateur: idCommercant,
+          titre: 'Nouvelle commande',
+          message: 'Nouvelle commande pour "$nomPlat".',
+          idCommande: idCommande,
+          dateCreation: DateTime.now(),
+        ),
+      );
+    } catch (_) {
+      return;
     }
   }
 

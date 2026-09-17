@@ -62,11 +62,9 @@ class MockData {
     ),
   ];
 
-  /// Liste des étudiants (dérivée de [utilisateurs]).
   static List<UserModel> get etudiants =>
       utilisateurs.where((user) => user.role == UserRole.student).toList();
 
-  /// Liste des commerçants (dérivée de [utilisateurs]).
   static List<UserModel> get commercants =>
       utilisateurs.where((user) => user.role == UserRole.merchant).toList();
 

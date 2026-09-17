@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_text_styles.dart';
 import '../../../../../core/widgets/quick_eat_app_bar.dart';
+import '../../../../../data/repositories/notification_repository.dart';
 import '../../../../../data/repositories/order_repository.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/order_model.dart';
+import '../../../../shell/presentation/layouts/main_layout.dart';
 import '../controllers/student_orders_controller.dart';
 import '../widgets/order_card_student.dart';
 
@@ -27,6 +29,7 @@ class StudentOrdersScreen extends StatelessWidget {
     return ChangeNotifierProvider<StudentOrdersController>(
       create: (context) => StudentOrdersController(
         orderRepository: _resolveOrderRepository(context),
+        notificationRepository: FirestoreNotificationRepository(),
         idEtudiant: FirebaseAuth.instance.currentUser?.uid ?? '',
       )..startListening(),
       child: const _StudentOrdersView(),
@@ -104,7 +107,10 @@ class _StudentOrdersView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const QuickEatAppBar(),
+      appBar: QuickEatAppBar(
+        onOuvrirCommandes: () =>
+            context.read<MainLayoutController?>()?.select(1),
+      ),
       body: SafeArea(
         top: false,
         child: Column(

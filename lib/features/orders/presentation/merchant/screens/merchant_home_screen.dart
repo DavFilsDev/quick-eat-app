@@ -5,6 +5,7 @@ import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/utils/time_ago_formatter.dart';
 import '../../../../../core/widgets/quick_eat_app_bar.dart';
 import '../../../../../routes/app_router.dart';
+import '../../../../shell/presentation/layouts/main_layout.dart';
 import '../controllers/merchant_orders_controller.dart';
 import '../widgets/order_status_badge.dart';
 import '../widgets/merchant_orders_scope.dart';
@@ -19,6 +20,8 @@ class MerchantHomeScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: QuickEatAppBar(
+          onOuvrirCommandes: () =>
+              context.read<MainLayoutController?>()?.select(0),
           actions: [
             Consumer<MerchantOrdersController>(
               builder: (context, controller, child) {

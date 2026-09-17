@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
+import 'package:quickeat/data/repositories/notification_repository.dart';
 import 'package:quickeat/data/repositories/order_repository.dart';
 import 'package:quickeat/data/repositories/user_repository.dart';
 import 'package:quickeat/features/orders/presentation/merchant/controllers/merchant_orders_controller.dart';
@@ -9,6 +10,7 @@ import 'package:quickeat/features/orders/presentation/merchant/screens/merchant_
 import 'package:quickeat/features/orders/presentation/merchant/widgets/order_progress_bar.dart';
 import 'package:quickeat/models/enums/delivery_type.dart';
 import 'package:quickeat/models/enums/order_status.dart';
+import 'package:quickeat/models/notification_model.dart';
 import 'package:quickeat/models/order_model.dart';
 import 'package:quickeat/models/user_model.dart';
 
@@ -16,15 +18,27 @@ class MockOrderRepository extends Mock implements OrderRepository {}
 
 class MockUserRepository extends Mock implements UserRepository {}
 
+class MockNotificationRepository extends Mock
+    implements NotificationRepository {}
+
+class _FakeNotificationModel extends Fake implements NotificationModel {}
+
 void main() {
   late MockOrderRepository mockOrderRepository;
   late MockUserRepository mockUserRepository;
+  late MockNotificationRepository mockNotificationRepository;
   late MerchantOrdersController controller;
   const merchantId = 'merchant_123';
+
+  setUpAll(() {
+    registerFallbackValue(_FakeNotificationModel());
+    registerFallbackValue(OrderStatus.acceptee);
+  });
 
   setUp(() {
     mockOrderRepository = MockOrderRepository();
     mockUserRepository = MockUserRepository();
+    mockNotificationRepository = MockNotificationRepository();
   });
 
   group('MerchantOrdersController Logic', () {
@@ -60,6 +74,72 @@ void main() {
 
       expect(controller.orders.first.idCommande, '1');
       expect(controller.orders.last.idCommande, '2');
+    });
+
+    test('notifie l\'étudiant lorsque la commande est terminée', () async {
+      final order = OrderModel(
+        idCommande: 'ord_1',
+        idEtudiant: 'e1',
+        idCommercant: merchantId,
+        dateCommande: DateTime.now(),
+        montantTotal: 1500,
+        typeReception: DeliveryType.retrait,
+        statut: OrderStatus.acceptee,
+      );
+      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+          .thenAnswer((_) => Stream.value([order]));
+      when(() => mockOrderRepository.mettreAJourStatut(any(), any()))
+          .thenAnswer((_) async {});
+      when(() => mockNotificationRepository.creerNotification(any()))
+          .thenAnswer((_) async {});
+
+      controller = MerchantOrdersController(
+        orderRepository: mockOrderRepository,
+        userRepository: mockUserRepository,
+        notificationRepository: mockNotificationRepository,
+        merchantId: merchantId,
+      );
+      await Future.delayed(Duration.zero);
+
+      await controller.updateOrderStatus('ord_1', OrderStatus.terminee);
+
+      final captured =
+          verify(
+                () =>
+                    mockNotificationRepository.creerNotification(captureAny()),
+              ).captured.single
+              as NotificationModel;
+      expect(captured.idUtilisateur, 'e1');
+      expect(captured.idCommande, 'ord_1');
+      expect(captured.message, 'Votre commande est prête à être retirée.');
+    });
+
+    test('ne notifie pas l\'étudiant pour un statut intermédiaire', () async {
+      final order = OrderModel(
+        idCommande: 'ord_1',
+        idEtudiant: 'e1',
+        idCommercant: merchantId,
+        dateCommande: DateTime.now(),
+        montantTotal: 1500,
+        typeReception: DeliveryType.retrait,
+        statut: OrderStatus.enAttente,
+      );
+      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+          .thenAnswer((_) => Stream.value([order]));
+      when(() => mockOrderRepository.mettreAJourStatut(any(), any()))
+          .thenAnswer((_) async {});
+
+      controller = MerchantOrdersController(
+        orderRepository: mockOrderRepository,
+        userRepository: mockUserRepository,
+        notificationRepository: mockNotificationRepository,
+        merchantId: merchantId,
+      );
+      await Future.delayed(Duration.zero);
+
+      await controller.updateOrderStatus('ord_1', OrderStatus.acceptee);
+
+      verifyNever(() => mockNotificationRepository.creerNotification(any()));
     });
   });
 

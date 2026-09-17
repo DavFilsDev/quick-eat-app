@@ -11,6 +11,7 @@ class UserModel {
   final UserRole role;
   final String? photoUrl;
   final String campus;
+  final bool notificationsActivees;
   final DateTime? dateCreation;
 
   const UserModel({
@@ -22,6 +23,7 @@ class UserModel {
     this.role = UserRole.student,
     this.photoUrl,
     required this.campus,
+    this.notificationsActivees = true,
     this.dateCreation,
   });
 
@@ -37,6 +39,7 @@ class UserModel {
       role: UserRole.fromDbValue(data['role'] as String? ?? 'STUDENT'),
       photoUrl: data['photoUrl'] as String?,
       campus: data['campus'] as String? ?? '',
+      notificationsActivees: data['notificationsActivees'] as bool? ?? true,
       dateCreation: _parseDate(data['dateCreation']),
     );
   }
@@ -51,6 +54,7 @@ class UserModel {
       'role': role.dbValue,
       'photoUrl': photoUrl,
       'campus': campus,
+      'notificationsActivees': notificationsActivees,
       'dateCreation': dateCreation,
     };
   }
@@ -68,6 +72,7 @@ class UserModel {
     UserRole? role,
     String? photoUrl,
     String? campus,
+    bool? notificationsActivees,
     DateTime? dateCreation,
   }) {
     return UserModel(
@@ -79,6 +84,8 @@ class UserModel {
       role: role ?? this.role,
       photoUrl: photoUrl ?? this.photoUrl,
       campus: campus ?? this.campus,
+      notificationsActivees:
+          notificationsActivees ?? this.notificationsActivees,
       dateCreation: dateCreation ?? this.dateCreation,
     );
   }

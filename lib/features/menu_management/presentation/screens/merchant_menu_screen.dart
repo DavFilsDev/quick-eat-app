@@ -6,8 +6,9 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/quick_eat_app_bar.dart';
 import '../../../../data/repositories/menu_repository.dart';
+import '../../../../data/repositories/notification_repository.dart';
 import '../../../../models/food_model.dart';
-import '../../../../models/user_model.dart';
+import '../../../shell/presentation/layouts/main_layout.dart';
 import '../controllers/menu_management_controller.dart';
 import '../widgets/menu_form_dialog.dart';
 import '../widgets/menu_item_tile.dart';
@@ -17,12 +18,12 @@ class MerchantMenuScreen extends StatefulWidget {
     super.key,
     this.menuRepository,
     this.idCommercant,
-    this.userStream,
+    this.notificationRepository,
   });
 
   final MenuRepository? menuRepository;
   final String? idCommercant;
-  final Stream<UserModel?>? userStream;
+  final NotificationRepository? notificationRepository;
 
   @override
   State<MerchantMenuScreen> createState() => _MerchantMenuScreenState();
@@ -119,7 +120,10 @@ class _MerchantMenuScreenState extends State<MerchantMenuScreen> {
         backgroundColor: AppColors.background,
         appBar: QuickEatAppBar(
           title: 'Mes Plats',
-          userStream: widget.userStream,
+          idUtilisateur: widget.idCommercant,
+          notificationRepository: widget.notificationRepository,
+          onOuvrirCommandes: () =>
+              context.read<MainLayoutController?>()?.select(0),
         ),
         floatingActionButton: FloatingActionButton(
           key: const Key('ajouter_plat'),
