@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../../../../models/food_model.dart';
 
 class FoodCard extends StatelessWidget {
@@ -80,12 +80,11 @@ class FoodCard extends StatelessWidget {
             const SizedBox(width: 12),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: food.imageUrl ?? '',
+              child: AppImage(
+                value: food.imageUrl ?? '',
                 width: 80,
                 height: 80,
-                fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Container(
+                errorWidget: Container(
                   width: 80,
                   height: 80,
                   color: Colors.grey.shade200,

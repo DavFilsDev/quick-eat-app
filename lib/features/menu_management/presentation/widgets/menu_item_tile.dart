@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../../../../models/food_model.dart';
 
 class MenuItemTile extends StatelessWidget {
@@ -132,13 +132,12 @@ class _ImagePlat extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: url == null || url.isEmpty
           ? fallback
-          : CachedNetworkImage(
-              imageUrl: url,
+          : AppImage(
+              value: url,
               width: 72,
               height: 72,
-              fit: BoxFit.cover,
-              placeholder: (context, _) => fallback,
-              errorWidget: (context, _, _) => fallback,
+              placeholder: fallback,
+              errorWidget: fallback,
             ),
     );
   }

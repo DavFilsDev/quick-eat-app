@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../../../../models/user_model.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -22,15 +22,12 @@ class ProfileHeader extends StatelessWidget {
           child: ClipOval(
             child: photoUrl == null || photoUrl.isEmpty
                 ? _Initiales(nom: user.nomComplet)
-                : CachedNetworkImage(
-                    imageUrl: photoUrl,
+                : AppImage(
+                    value: photoUrl,
                     width: 88,
                     height: 88,
-                    fit: BoxFit.cover,
-                    placeholder: (context, _) =>
-                        _Initiales(nom: user.nomComplet),
-                    errorWidget: (context, _, _) =>
-                        _Initiales(nom: user.nomComplet),
+                    placeholder: _Initiales(nom: user.nomComplet),
+                    errorWidget: _Initiales(nom: user.nomComplet),
                   ),
           ),
         ),
