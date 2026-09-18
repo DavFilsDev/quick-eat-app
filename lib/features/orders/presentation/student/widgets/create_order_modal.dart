@@ -156,33 +156,37 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
                   const SizedBox(height: 24),
                   Text('Mode de réception', style: AppTextStyles.heading2),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _ModeReceptionCard(
-                          key: const Key('choix_livraison'),
-                          icon: Icons.directions_walk,
-                          label: 'Livraison',
-                          selectionnee:
-                              _typeReception == DeliveryType.livraison,
-                          onTap: () => setState(
-                            () => _typeReception = DeliveryType.livraison,
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _ModeReceptionCard(
+                            key: const Key('choix_livraison'),
+                            icon: Icons.directions_walk,
+                            label: 'Livraison',
+                            selectionnee:
+                                _typeReception == DeliveryType.livraison,
+                            onTap: () => setState(
+                              () => _typeReception = DeliveryType.livraison,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _ModeReceptionCard(
-                          key: const Key('choix_retrait'),
-                          icon: Icons.storefront,
-                          label: 'À récupérer sur place',
-                          selectionnee: _typeReception == DeliveryType.retrait,
-                          onTap: () => setState(
-                            () => _typeReception = DeliveryType.retrait,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _ModeReceptionCard(
+                            key: const Key('choix_retrait'),
+                            icon: Icons.storefront,
+                            label: 'À récupérer sur place',
+                            selectionnee:
+                                _typeReception == DeliveryType.retrait,
+                            onTap: () => setState(
+                              () => _typeReception = DeliveryType.retrait,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Text('Quantité', style: AppTextStyles.heading2),

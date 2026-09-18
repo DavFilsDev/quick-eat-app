@@ -77,26 +77,36 @@ class MenuItemTile extends StatelessWidget {
                       const SizedBox(width: 8),
                       _CategorieChip(categorie: food.categorie),
                       const Spacer(),
-                      IconButton(
-                        key: Key('editer_${food.idFood}'),
-                        onPressed: onEditer,
-                        tooltip: 'Modifier',
-                        visualDensity: VisualDensity.compact,
-                        icon: const Icon(
-                          Icons.edit_outlined,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                      ),
-                      IconButton(
-                        key: Key('supprimer_${food.idFood}'),
-                        onPressed: onSupprimer,
-                        tooltip: 'Supprimer',
-                        visualDensity: VisualDensity.compact,
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: AppColors.statusCancelled,
-                          size: 20,
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              key: Key('editer_${food.idFood}'),
+                              onPressed: onEditer,
+                              tooltip: 'Modifier',
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.all(2),
+                              icon: const Icon(
+                                Icons.edit_outlined,
+                                color: AppColors.statusPending,
+                                size: 20,
+                              ),
+                            ),
+                            IconButton(
+                              key: Key('supprimer_${food.idFood}'),
+                              onPressed: onSupprimer,
+                              tooltip: 'Supprimer',
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.all(2),
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: AppColors.statusCancelled,
+                                size: 20,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
