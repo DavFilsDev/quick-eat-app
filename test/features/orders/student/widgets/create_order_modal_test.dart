@@ -4,16 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
+import 'package:quickeat/data/repositories/notification_repository.dart';
 import 'package:quickeat/data/repositories/order_repository.dart';
 import 'package:quickeat/features/orders/presentation/student/controllers/student_orders_controller.dart';
 import 'package:quickeat/features/orders/presentation/student/widgets/create_order_modal.dart';
 import 'package:quickeat/models/enums/delivery_type.dart';
 import 'package:quickeat/models/food_model.dart';
+import 'package:quickeat/models/notification_model.dart';
 import 'package:quickeat/models/order_model.dart';
 
 class MockOrderRepository extends Mock implements OrderRepository {}
 
+class MockNotificationRepository extends Mock
+    implements NotificationRepository {}
+
 class _FakeOrderModel extends Fake implements OrderModel {}
+
+class _FakeNotificationModel extends Fake implements NotificationModel {}
 
 String _currency(num value) {
   return NumberFormat.currency(
@@ -26,9 +34,11 @@ String _currency(num value) {
 void main() {
   setUpAll(() {
     registerFallbackValue(_FakeOrderModel());
+    registerFallbackValue(_FakeNotificationModel());
   });
 
   late MockOrderRepository mockRepository;
+  late MockNotificationRepository mockNotificationRepository;
   late StudentOrdersController controller;
 
   const food = FoodModel(
@@ -40,6 +50,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockOrderRepository();
+    mockNotificationRepository = MockNotificationRepository();
     controller = StudentOrdersController(
       orderRepository: mockRepository,
       idEtudiant: 'etu1',
@@ -68,6 +79,33 @@ void main() {
                     CreateOrderModal(food: food, controller: controller),
               ),
               child: const Text('Ouvrir'),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> pumpShow(WidgetTester tester) {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    return tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<OrderRepository>.value(value: mockRepository),
+          Provider<NotificationRepository>.value(
+            value: mockNotificationRepository,
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => CreateOrderModal.show(context, food: food),
+                child: const Text('Ouvrir'),
+              ),
             ),
           ),
         ),
@@ -216,4 +254,48 @@ void main() {
       expect(find.text('Une erreur est survenue. Réessayez.'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'Test via CreateOrderModal.show : la création de commande notifie le '
+    'commerçant avec le bon destinataire',
+    (tester) async {
+      when(() => mockRepository.creerCommande(any()))
+          .thenAnswer((_) async => 'cmd123');
+      when(() => mockNotificationRepository.creerNotification(any()))
+          .thenAnswer((_) async {});
+
+      await pumpShow(tester);
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
+      await tester.pumpAndSettle();
+
+      final captured =
+          verify(
+                () =>
+                    mockNotificationRepository.creerNotification(captureAny()),
+              ).captured.single
+              as NotificationModel;
+      expect(captured.idUtilisateur, 'com1');
+      expect(captured.idCommande, 'cmd123');
+      expect(captured.titre, 'Nouvelle commande');
+    },
+  );
+
+  testWidgets('Test via CreateOrderModal.show : la commande reste créée si la '
+      'notification échoue', (tester) async {
+    when(() => mockRepository.creerCommande(any()))
+        .thenAnswer((_) async => 'cmd123');
+    when(() => mockNotificationRepository.creerNotification(any()))
+        .thenThrow(Exception('offline'));
+
+    await pumpShow(tester);
+    await tester.tap(find.text('Ouvrir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
+    await tester.pumpAndSettle();
+
+    verify(() => mockRepository.creerCommande(any())).called(1);
+    expect(find.textContaining('Riz sauce arachide'), findsNothing);
+  });
 }

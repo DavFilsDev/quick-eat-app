@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_text_styles.dart';
+import '../../../../../data/repositories/notification_repository.dart';
 import '../../../../../data/repositories/order_repository.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/food_model.dart';
@@ -23,7 +24,8 @@ class CreateOrderModal extends StatefulWidget {
   static Future<bool> show(BuildContext context, {required FoodModel food}) {
     final controller = StudentOrdersController(
       orderRepository: _resolveOrderRepository(context),
-      idEtudiant: FirebaseAuth.instance.currentUser?.uid ?? '',
+      notificationRepository: _resolveNotificationRepository(context),
+      idEtudiant: _resoudreIdEtudiant(),
     );
 
     return showModalBottomSheet<bool>(
@@ -42,6 +44,24 @@ class CreateOrderModal extends StatefulWidget {
       return context.read<OrderRepository>();
     } catch (_) {
       return FirestoreOrderRepository();
+    }
+  }
+
+  static NotificationRepository _resolveNotificationRepository(
+    BuildContext context,
+  ) {
+    try {
+      return context.read<NotificationRepository>();
+    } catch (_) {
+      return FirestoreNotificationRepository();
+    }
+  }
+
+  static String _resoudreIdEtudiant() {
+    try {
+      return FirebaseAuth.instance.currentUser?.uid ?? '';
+    } catch (_) {
+      return '';
     }
   }
 
