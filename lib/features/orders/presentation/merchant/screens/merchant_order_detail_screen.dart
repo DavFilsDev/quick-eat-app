@@ -30,25 +30,16 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchStudentInfo();
   }
 
-  Future<void> _fetchStudentInfo() async {
+  Future<void> _fetchStudentInfoById(String studentId) async {
     if (_isFetching || !mounted) return;
 
-    final controller = context.read<MerchantOrdersController>();
-    final orders = controller.orders;
-
-    final orderIndex = orders.indexWhere(
-      (o) => o.idCommande == widget.idCommande,
-    );
-    if (orderIndex == -1) return;
-
     _isFetching = true;
-    final order = orders[orderIndex];
 
     try {
-      final student = await controller.getStudentInfo(order.idEtudiant);
+      final controller = context.read<MerchantOrdersController>();
+      final student = await controller.getStudentInfo(studentId);
       if (mounted) {
         setState(() {
           _student = student;
@@ -149,13 +140,11 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (_isLoadingStudent && _student == null && !_isFetching) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => _fetchStudentInfo(),
-              );
-            }
-
             final order = orders[orderIndex];
+
+            if (_student == null && !_isFetching) {
+              Future.microtask(() => _fetchStudentInfoById(order.idEtudiant));
+            }
 
             final steps = [OrderStatus.enAttente, ...order.statutsMarchand];
             final nextStatus = _getNextStatus(order);
@@ -232,6 +221,8 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                           ),
                         ),
                       ),
+
+                      // TODO: Bug du chargement des infos du client, a corriger
                       title: Text(
                         _isLoadingStudent
                             ? 'Chargement...'
@@ -243,6 +234,8 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                             ? 'Livraison : ${order.adresseLivraison ?? 'Non précisée'}'
                             : 'Campus ${_student?.campus ?? '...'}',
                       ),
+
+
                       trailing: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
