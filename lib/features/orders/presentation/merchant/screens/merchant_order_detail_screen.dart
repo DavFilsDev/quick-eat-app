@@ -221,8 +221,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                           ),
                         ),
                       ),
-
-                      // TODO: Bug du chargement des infos du client, a corriger
                       title: Text(
                         _isLoadingStudent
                             ? 'Chargement...'
@@ -234,8 +232,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                             ? 'Livraison : ${order.adresseLivraison ?? 'Non précisée'}'
                             : 'Campus ${_student?.campus ?? '...'}',
                       ),
-
-
                       trailing: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
