@@ -1,21 +1,29 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/services/image_picker_service.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../../../../models/food_model.dart';
 import '../controllers/menu_management_controller.dart';
 
 class MenuFormDialog extends StatefulWidget {
-  const MenuFormDialog({super.key, required this.controller, this.plat});
+  const MenuFormDialog({
+    super.key,
+    required this.controller,
+    this.plat,
+    this.imagePickerService,
+  });
 
   final MenuManagementController controller;
   final FoodModel? plat;
+  final ImagePickerService? imagePickerService;
 
   static Future<bool> show(
     BuildContext context, {
     required MenuManagementController controller,
     FoodModel? plat,
+    ImagePickerService? imagePickerService,
   }) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -24,7 +32,11 @@ class MenuFormDialog extends StatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => MenuFormDialog(controller: controller, plat: plat),
+      builder: (_) => MenuFormDialog(
+        controller: controller,
+        plat: plat,
+        imagePickerService: imagePickerService,
+      ),
     ).then((resultat) => resultat ?? false);
   }
 
@@ -44,21 +56,24 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
   ];
 
   final _formKey = GlobalKey<FormState>();
+  late final ImagePickerService _pickerService;
   late final TextEditingController _nomController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _prixController;
-  late final TextEditingController _imageUrlController;
   late final TextEditingController _categorieAutreController;
   late final List<String> _categories;
   late String _categorie;
   late bool _disponible;
+  String? _imageUrl;
   bool _enregistrement = false;
+  bool _choixImage = false;
 
   bool get _isEdition => widget.plat != null;
 
   @override
   void initState() {
     super.initState();
+    _pickerService = widget.imagePickerService ?? DeviceImagePickerService();
     final plat = widget.plat;
     final categoriePlat = plat?.categorie;
     _nomController = TextEditingController(text: plat?.nom ?? '');
@@ -68,7 +83,7 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
     _prixController = TextEditingController(
       text: plat != null ? plat.prix.toStringAsFixed(0) : '',
     );
-    _imageUrlController = TextEditingController(text: plat?.imageUrl ?? '');
+    _imageUrl = plat?.imageUrl;
     _categories = List<String>.of(_categoriesPredefinies);
     _categorie = categoriePlat == null || _categories.contains(categoriePlat)
         ? (categoriePlat ?? _categories.first)
@@ -82,19 +97,25 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
           : '',
     );
     _disponible = plat?.disponible ?? true;
-
-    _imageUrlController.addListener(_rafraichirApercu);
   }
 
-  void _rafraichirApercu() => setState(() {});
+  Future<void> _choisirImage() async {
+    setState(() => _choixImage = true);
+    final selection = await _pickerService.choisirImage();
+    if (!mounted) return;
+    setState(() {
+      _choixImage = false;
+      if (selection != null) {
+        _imageUrl = selection.dataUri;
+      }
+    });
+  }
 
   @override
   void dispose() {
-    _imageUrlController.removeListener(_rafraichirApercu);
     _nomController.dispose();
     _descriptionController.dispose();
     _prixController.dispose();
-    _imageUrlController.dispose();
     _categorieAutreController.dispose();
     super.dispose();
   }
@@ -104,7 +125,7 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
     setState(() => _enregistrement = true);
 
     final description = _descriptionController.text.trim();
-    final imageUrl = _imageUrlController.text.trim();
+    final imageUrl = _imageUrl;
     final categorie = _categorie == 'Autre'
         ? _categorieAutreController.text.trim()
         : _categorie;
@@ -113,7 +134,7 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
       nom: _nomController.text.trim(),
       description: description.isEmpty ? null : description,
       prix: double.parse(_prixController.text.replaceAll(',', '.').trim()),
-      imageUrl: imageUrl.isEmpty ? null : imageUrl,
+      imageUrl: imageUrl == null || imageUrl.isEmpty ? null : imageUrl,
       categorie: categorie,
       disponible: _disponible,
       idCommercant: widget.plat?.idCommercant ?? '',
@@ -252,27 +273,11 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
                   ),
                 ],
                 const SizedBox(height: 12),
-                TextFormField(
-                  key: const Key('champ_image_plat'),
-                  controller: _imageUrlController,
-                  decoration: const InputDecoration(
-                    labelText: "URL de l'image (optionnel)",
-                    border: OutlineInputBorder(),
-                  ),
+                _ZoneImagePlat(
+                  imageUrl: _imageUrl,
+                  enCours: _choixImage,
+                  onChoisir: _choisirImage,
                 ),
-                if (_imageUrlController.text.trim().isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      imageUrl: _imageUrlController.text.trim(),
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, _, _) => const SizedBox.shrink(),
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 8),
                 SwitchListTile(
                   key: const Key('champ_disponible_plat'),
@@ -286,7 +291,9 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
                   width: double.infinity,
                   child: ElevatedButton(
                     key: const Key('valider_plat'),
-                    onPressed: _enregistrement ? null : _soumettre,
+                    onPressed: _enregistrement || _choixImage
+                        ? null
+                        : _soumettre,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -326,6 +333,95 @@ class _MenuFormDialogState extends State<MenuFormDialog> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ZoneImagePlat extends StatelessWidget {
+  const _ZoneImagePlat({
+    required this.imageUrl,
+    required this.enCours,
+    required this.onChoisir,
+  });
+
+  final String? imageUrl;
+  final bool enCours;
+  final VoidCallback onChoisir;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = imageUrl;
+
+    return InkWell(
+      key: const Key('zone_image_plat'),
+      onTap: enCours ? null : onChoisir,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 140,
+        width: double.infinity,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: url == null || url.isEmpty
+            ? Stack(
+                alignment: Alignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate_outlined,
+                        size: 36,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Choisir une image',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (enCours) const CircularProgressIndicator(),
+                ],
+              )
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  AppImage(value: url),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Material(
+                      color: AppColors.surface.withValues(alpha: 0.9),
+                      shape: const CircleBorder(),
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: onChoisir,
+                        child: const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.edit,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (enCours)
+                    Container(
+                      color: Colors.black26,
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    ),
+                ],
+              ),
       ),
     );
   }
