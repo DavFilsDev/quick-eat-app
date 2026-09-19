@@ -70,6 +70,8 @@ class CreateOrderModal extends StatefulWidget {
 }
 
 class _CreateOrderModalState extends State<CreateOrderModal> {
+  final _formKey = GlobalKey<FormState>();
+  final _adresseLivraisonController = TextEditingController();
   DeliveryType _typeReception = DeliveryType.livraison;
   int _quantite = 1;
 
@@ -89,10 +91,17 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
   }
 
   Future<void> _confirmer() async {
+    if (_typeReception == DeliveryType.livraison &&
+        !(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
     final succes = await widget.controller.creerCommande(
       food: widget.food,
       typeReception: _typeReception,
       quantite: _quantite,
+      adresseLivraison: _typeReception == DeliveryType.livraison
+          ? _adresseLivraisonController.text.trim()
+          : null,
     );
     if (!mounted) return;
     if (succes) Navigator.of(context).pop(true);
@@ -100,6 +109,7 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
 
   @override
   void dispose() {
+    _adresseLivraisonController.dispose();
     widget.controller.dispose();
     super.dispose();
   }
@@ -128,156 +138,178 @@ class _CreateOrderModalState extends State<CreateOrderModal> {
               bottom: MediaQuery.of(context).viewInsets.bottom + 20,
             ),
             child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Confirmer votre commande',
-                          style: AppTextStyles.heading1,
-                        ),
-                      ),
-                      IconButton(
-                        key: const Key('bouton_fermer_modale'),
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    "${widget.food.nom} (${currency.format(widget.food.prix)} l'unité)",
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text('Mode de réception', style: AppTextStyles.heading2),
-                  const SizedBox(height: 10),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
                         Expanded(
-                          child: _ModeReceptionCard(
-                            key: const Key('choix_livraison'),
-                            icon: Icons.directions_walk,
-                            label: 'Livraison',
-                            selectionnee:
-                                _typeReception == DeliveryType.livraison,
-                            onTap: () => setState(
-                              () => _typeReception = DeliveryType.livraison,
-                            ),
+                          child: Text(
+                            'Confirmer votre commande',
+                            style: AppTextStyles.heading1,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _ModeReceptionCard(
-                            key: const Key('choix_retrait'),
-                            icon: Icons.storefront,
-                            label: 'À récupérer sur place',
-                            selectionnee:
-                                _typeReception == DeliveryType.retrait,
-                            onTap: () => setState(
-                              () => _typeReception = DeliveryType.retrait,
-                            ),
-                          ),
+                        IconButton(
+                          key: const Key('bouton_fermer_modale'),
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text('Quantité', style: AppTextStyles.heading2),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      _BoutonQuantite(
-                        key: const Key('bouton_decrementer_quantite'),
-                        icon: Icons.remove,
-                        onTap: _quantite > _quantiteMin ? _decrementer : null,
-                      ),
-                      const SizedBox(width: 24),
-                      Text(
-                        '$_quantite',
-                        key: const Key('valeur_quantite'),
-                        style: AppTextStyles.heading1,
-                      ),
-                      const SizedBox(width: 24),
-                      _BoutonQuantite(
-                        key: const Key('bouton_incrementer_quantite'),
-                        icon: Icons.add,
-                        onTap: _quantite < _quantiteMax ? _incrementer : null,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Montant total', style: AppTextStyles.heading2),
-                      Text(
-                        currency.format(_montantTotal),
-                        key: const Key('valeur_montant_total'),
-                        style: AppTextStyles.price,
-                      ),
-                    ],
-                  ),
-                  if (erreur != null) ...[
-                    const SizedBox(height: 12),
                     Text(
-                      erreur,
-                      style: const TextStyle(color: AppColors.statusCancelled),
+                      "${widget.food.nom} (${currency.format(widget.food.prix)} l'unité)",
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                  ],
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      key: const Key('bouton_confirmer_commande'),
-                      onPressed: isSubmitting ? null : _confirmer,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 24),
+                    Text('Mode de réception', style: AppTextStyles.heading2),
+                    const SizedBox(height: 10),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: _ModeReceptionCard(
+                              key: const Key('choix_livraison'),
+                              icon: Icons.directions_walk,
+                              label: 'Livraison',
+                              selectionnee:
+                                  _typeReception == DeliveryType.livraison,
+                              onTap: () => setState(
+                                () => _typeReception = DeliveryType.livraison,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _ModeReceptionCard(
+                              key: const Key('choix_retrait'),
+                              icon: Icons.storefront,
+                              label: 'À récupérer sur place',
+                              selectionnee:
+                                  _typeReception == DeliveryType.retrait,
+                              onTap: () => setState(
+                                () => _typeReception = DeliveryType.retrait,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (_typeReception == DeliveryType.livraison) ...[
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        key: const Key('champ_adresse_livraison'),
+                        controller: _adresseLivraisonController,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: const InputDecoration(
+                          labelText: 'Lieu de livraison',
+                          hintText: 'Bâtiment, numéro de salle, repère...',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                            (value == null || value.trim().isEmpty)
+                            ? 'Le lieu de livraison est requis'
+                            : null,
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    Text('Quantité', style: AppTextStyles.heading2),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        _BoutonQuantite(
+                          key: const Key('bouton_decrementer_quantite'),
+                          icon: Icons.remove,
+                          onTap: _quantite > _quantiteMin ? _decrementer : null,
+                        ),
+                        const SizedBox(width: 24),
+                        Text(
+                          '$_quantite',
+                          key: const Key('valeur_quantite'),
+                          style: AppTextStyles.heading1,
+                        ),
+                        const SizedBox(width: 24),
+                        _BoutonQuantite(
+                          key: const Key('bouton_incrementer_quantite'),
+                          icon: Icons.add,
+                          onTap: _quantite < _quantiteMax ? _incrementer : null,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Montant total', style: AppTextStyles.heading2),
+                        Text(
+                          currency.format(_montantTotal),
+                          key: const Key('valeur_montant_total'),
+                          style: AppTextStyles.price,
+                        ),
+                      ],
+                    ),
+                    if (erreur != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        erreur,
+                        style: const TextStyle(
+                          color: AppColors.statusCancelled,
                         ),
                       ),
-                      icon: isSubmitting
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.check_circle_outline),
-                      label: Text(
-                        isSubmitting
-                            ? 'Envoi en cours...'
-                            : 'Valider la commande',
+                    ],
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        key: const Key('bouton_confirmer_commande'),
+                        onPressed: isSubmitting ? null : _confirmer,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: isSubmitting
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.check_circle_outline),
+                        label: Text(
+                          isSubmitting
+                              ? 'Envoi en cours...'
+                              : 'Valider la commande',
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      key: const Key('bouton_annuler_modale'),
-                      onPressed: isSubmitting
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
+                        key: const Key('bouton_annuler_modale'),
+                        onPressed: isSubmitting
+                            ? null
+                            : () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.textSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Annuler'),
                       ),
-                      child: const Text('Annuler'),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
