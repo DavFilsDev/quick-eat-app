@@ -246,7 +246,8 @@ void main() {
     );
 
     testWidgets(
-      'should show "Passer à : Reçue" for pickup (Retrait) when status is TERMINEE',
+      'should show "Reçu par le client" for pickup (Retrait) when status is '
+      'TERMINEE and keep the OrderStatus.recu transition',
       (tester) async {
         final order = OrderModel(
           idCommande: 'ord_1',
@@ -260,6 +261,8 @@ void main() {
 
         when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
             .thenAnswer((_) => Stream.value([order]));
+        when(() => mockOrderRepository.mettreAJourStatut(any(), any()))
+            .thenAnswer((_) async {});
         when(() => mockUserRepository.streamUtilisateur('stud_1')).thenAnswer(
           (_) => Stream<UserModel?>.value(
             const UserModel(
@@ -291,7 +294,15 @@ void main() {
           await tester.pump(const Duration(milliseconds: 50));
         }
 
-        expect(find.text('Passer à : Reçue'), findsOneWidget);
+        expect(find.text('Reçu par le client'), findsOneWidget);
+
+        await tester.tap(find.text('Reçu par le client'));
+        await tester.pumpAndSettle();
+
+        verify(
+          () =>
+              mockOrderRepository.mettreAJourStatut('ord_1', OrderStatus.recu),
+        ).called(1);
       },
     );
   });
@@ -389,8 +400,9 @@ void main() {
           await tester.pump(const Duration(milliseconds: 50));
         }
 
+        expect(find.text('Détails de la commande'), findsOneWidget);
         expect(find.text('Jean Dupont'), findsOneWidget);
-        expect(find.text('jean.dupont@campus.bj'), findsOneWidget);
+        expect(find.text('jean.dupont@campus.bj'), findsNothing);
         expect(find.text('97123456'), findsOneWidget);
         expect(find.text('Livraison : Bâtiment A, salle 12'), findsOneWidget);
         expect(find.text('JD'), findsOneWidget);
