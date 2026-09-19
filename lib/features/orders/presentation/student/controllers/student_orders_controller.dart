@@ -42,7 +42,12 @@ class StudentOrdersController extends ChangeNotifier {
   String? _creationErrorMessage;
 
   StudentOrdersStatus get status => _status;
-  List<OrderModel> get orders => _orders;
+  List<OrderModel> get orders {
+    final sorted = List<OrderModel>.from(_orders);
+    sorted.sort((a, b) => b.dateCommande.compareTo(a.dateCommande));
+    return sorted;
+  }
+
   String? get errorMessage => _errorMessage;
   bool get isCreatingOrder => _isCreatingOrder;
   String? get creationErrorMessage => _creationErrorMessage;

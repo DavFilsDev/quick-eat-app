@@ -85,6 +85,32 @@ void main() {
       },
     );
 
+    test('trie les commandes de la plus récente à la plus ancienne', () async {
+      controller.startListening();
+
+      final ancienne = OrderModel(
+        idCommande: 'c1',
+        idEtudiant: 'etu1',
+        idCommercant: 'com1',
+        dateCommande: DateTime.now().subtract(const Duration(hours: 2)),
+        montantTotal: 1000,
+        typeReception: DeliveryType.retrait,
+      );
+      final recente = OrderModel(
+        idCommande: 'c2',
+        idEtudiant: 'etu1',
+        idCommercant: 'com1',
+        dateCommande: DateTime.now(),
+        montantTotal: 2000,
+        typeReception: DeliveryType.retrait,
+      );
+
+      streamController.add([ancienne, recente]);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(controller.orders, [recente, ancienne]);
+    });
+
     test('passe à error si le stream échoue', () async {
       controller.startListening();
 
