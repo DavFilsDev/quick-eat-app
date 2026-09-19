@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/app_text_styles.dart';
 import '../../../../../core/utils/time_ago_formatter.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/order_model.dart';
@@ -25,11 +27,15 @@ class MerchantOrderCard extends StatelessWidget {
     final estLivraison = order.typeReception == DeliveryType.livraison;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,11 +44,11 @@ class MerchantOrderCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
-                    vertical: 4,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -50,7 +56,7 @@ class MerchantOrderCard extends StatelessWidget {
                       Icon(
                         Icons.access_time,
                         size: 12,
-                        color: Colors.red.shade700,
+                        color: AppColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Flexible(
@@ -58,10 +64,8 @@ class MerchantOrderCard extends StatelessWidget {
                           TimeAgoFormatter.format(order.dateCommande),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red.shade700,
+                          style: AppTextStyles.caption.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -72,31 +76,30 @@ class MerchantOrderCard extends StatelessWidget {
                 OrderStatusBadge(status: order.statut),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             Row(
               children: [
-                DishThumbnail(imageUrl: firstItem?.imageUrl),
+                DishThumbnail(imageUrl: firstItem?.imageUrl, size: 42),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     itemSummary,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                    horizontal: 8,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     color: estLivraison
-                        ? Colors.orange.shade50
-                        : Colors.grey.shade100,
+                        ? AppColors.primary.withValues(alpha: 0.08)
+                        : AppColors.background,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -106,18 +109,17 @@ class MerchantOrderCard extends StatelessWidget {
                         estLivraison ? Icons.directions_walk : Icons.storefront,
                         size: 14,
                         color: estLivraison
-                            ? Colors.deepOrange
-                            : Colors.grey.shade700,
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         estLivraison ? 'À livrer' : 'Sur place',
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.caption.copyWith(
                           fontWeight: FontWeight.w600,
                           color: estLivraison
-                              ? Colors.deepOrange
-                              : Colors.grey.shade700,
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -125,16 +127,18 @@ class MerchantOrderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: onTap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade100,
-                  foregroundColor: Colors.black87,
+                  backgroundColor: AppColors.background,
+                  foregroundColor: AppColors.textPrimary,
                   elevation: 0,
+                  visualDensity: VisualDensity.compact,
+                  minimumSize: const Size(56, 36),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),

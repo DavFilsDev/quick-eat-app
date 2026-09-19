@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_image.dart';
 
 class DishThumbnail extends StatelessWidget {
@@ -21,10 +22,14 @@ class DishThumbnail extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(fallbackIcon, size: size * 0.5, color: Colors.deepOrange),
+      child: Icon(
+        fallbackIcon,
+        size: size * 0.5,
+        color: AppColors.textSecondary,
+      ),
     );
 
     if (url == null || url.isEmpty) return defaut;
