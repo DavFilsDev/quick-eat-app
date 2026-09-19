@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/errors/failures.dart';
+import '../../../../../core/widgets/app_image.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/order_model.dart';
@@ -26,33 +27,33 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
   UserModel? _student;
   bool _isLoadingStudent = true;
   bool _isFetching = false;
+  bool _studentRechercheFaite = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchStudentInfo();
   }
 
-  Future<void> _fetchStudentInfo() async {
-    if (_isFetching || !mounted) return;
-
-    final controller = context.read<MerchantOrdersController>();
-    final orders = controller.orders;
-
-    final orderIndex = orders.indexWhere(
-      (o) => o.idCommande == widget.idCommande,
-    );
-    if (orderIndex == -1) return;
+  Future<void> _fetchStudentInfoById(String studentId) async {
+    if (_isFetching || !mounted || _studentRechercheFaite) return;
 
     _isFetching = true;
-    final order = orders[orderIndex];
 
     try {
-      final student = await controller.getStudentInfo(order.idEtudiant);
+      final controller = context.read<MerchantOrdersController>();
+      final student = await controller.getStudentInfo(studentId);
       if (mounted) {
         setState(() {
           _student = student;
           _isLoadingStudent = false;
+          _studentRechercheFaite = true;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStudent = false;
+          _studentRechercheFaite = true;
         });
       }
     } finally {
@@ -149,13 +150,11 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (_isLoadingStudent && _student == null && !_isFetching) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => _fetchStudentInfo(),
-              );
-            }
-
             final order = orders[orderIndex];
+
+            if (!_studentRechercheFaite && !_isFetching) {
+              Future.microtask(() => _fetchStudentInfoById(order.idEtudiant));
+            }
 
             final steps = [OrderStatus.enAttente, ...order.statutsMarchand];
             final nextStatus = _getNextStatus(order);
@@ -222,15 +221,9 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                     ),
                     elevation: 1,
                     child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: const Color(0xFFFFDCB4),
-                        child: Text(
-                          _initials(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.brown,
-                          ),
-                        ),
+                      leading: _AvatarEtudiant(
+                        photoUrl: _student?.photoUrl,
+                        nom: _student?.nomComplet ?? '',
                       ),
                       title: Text(
                         _isLoadingStudent
@@ -238,10 +231,11 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                             : (_student?.nomComplet ?? 'Inconnu'),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(
-                        order.typeReception == DeliveryType.livraison
-                            ? 'Livraison : ${order.adresseLivraison ?? 'Non précisée'}'
-                            : 'Campus ${_student?.campus ?? '...'}',
+                      subtitle: _InformationsClient(
+                        etudiant: _student,
+                        isLoading: _isLoadingStudent,
+                        typeReception: order.typeReception,
+                        adresseLivraison: order.adresseLivraison,
                       ),
                       trailing: Container(
                         padding: const EdgeInsets.symmetric(
@@ -453,19 +447,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
     }
   }
 
-  String _initials() {
-    final s = _student;
-    if (s == null) return '?';
-    final parts = '${s.prenoms} ${s.nom}'
-        .trim()
-        .split(' ')
-        .where((p) => p.isNotEmpty)
-        .toList();
-    return ((parts.isNotEmpty ? parts.first[0] : '') +
-            (parts.length > 1 ? parts.last[0] : ''))
-        .toUpperCase();
-  }
-
   String _platsSummary(List<OrderItemModel> items) {
     if (items.isEmpty) return 'Commande';
     final first = items.first;
@@ -489,5 +470,104 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
       default:
         return '';
     }
+  }
+}
+
+class _AvatarEtudiant extends StatelessWidget {
+  const _AvatarEtudiant({required this.photoUrl, required this.nom});
+
+  final String? photoUrl;
+  final String nom;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = photoUrl;
+
+    return CircleAvatar(
+      radius: 24,
+      backgroundColor: Colors.brown.shade100,
+      child: ClipOval(
+        child: url == null || url.isEmpty
+            ? _Initiales(nom: nom)
+            : AppImage(
+                value: url,
+                width: 48,
+                height: 48,
+                placeholder: _Initiales(nom: nom),
+                errorWidget: _Initiales(nom: nom),
+              ),
+      ),
+    );
+  }
+}
+
+class _Initiales extends StatelessWidget {
+  const _Initiales({required this.nom});
+
+  final String nom;
+
+  @override
+  Widget build(BuildContext context) {
+    final parties = nom.trim().split(RegExp(r'\s+'));
+    final initiales = parties
+        .where((p) => p.isNotEmpty)
+        .take(2)
+        .map((p) => p[0].toUpperCase())
+        .join();
+
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: Center(
+        child: initiales.isEmpty
+            ? Icon(Icons.person, size: 24, color: Colors.brown.shade600)
+            : Text(
+                initiales,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown.shade700,
+                  fontSize: 16,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _InformationsClient extends StatelessWidget {
+  const _InformationsClient({
+    required this.etudiant,
+    required this.isLoading,
+    required this.typeReception,
+    required this.adresseLivraison,
+  });
+
+  final UserModel? etudiant;
+  final bool isLoading;
+  final DeliveryType typeReception;
+  final String? adresseLivraison;
+
+  @override
+  Widget build(BuildContext context) {
+    final champ = isLoading ? 'Chargement...' : '—';
+    final email = isLoading ? champ : (etudiant?.email ?? '');
+    final telephone = isLoading ? champ : (etudiant?.telephone ?? '');
+    final campus = isLoading ? champ : (etudiant?.campus ?? '');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (email.trim().isNotEmpty)
+          Text(email, style: const TextStyle(fontSize: 12)),
+        if (telephone.trim().isNotEmpty)
+          Text(telephone, style: const TextStyle(fontSize: 12)),
+        Text(
+          typeReception == DeliveryType.livraison
+              ? 'Livraison : ${adresseLivraison ?? 'Lieu non spécifié'}'
+              : 'Campus ${campus.isEmpty ? 'non renseigné' : campus}',
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
+    );
   }
 }

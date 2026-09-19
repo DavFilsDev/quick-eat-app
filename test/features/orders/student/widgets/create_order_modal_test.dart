@@ -206,6 +206,12 @@ void main() {
       await tester.tap(find.byKey(const Key('bouton_incrementer_quantite')));
       await tester.pump();
 
+      await tester.enterText(
+        find.byKey(const Key('champ_adresse_livraison')),
+        'Bâtiment A, salle 42',
+      );
+      await tester.pump();
+
       await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
       await tester.pump();
 
@@ -230,6 +236,7 @@ void main() {
       expect(captured.typeReception, DeliveryType.livraison);
       expect(captured.items.single.quantite, 2);
       expect(captured.montantTotal, 5000);
+      expect(captured.adresseLivraison, 'Bâtiment A, salle 42');
 
       // Fermeture : la modale n'est plus affichée.
       expect(find.textContaining('Riz sauce arachide'), findsNothing);
@@ -247,9 +254,13 @@ void main() {
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
 
+      await tester.tap(find.byKey(const Key('choix_retrait')));
+      await tester.pump();
+
       await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
       await tester.pumpAndSettle();
 
+      verify(() => mockRepository.creerCommande(any())).called(1);
       expect(find.textContaining('Riz sauce arachide'), findsOneWidget);
       expect(find.text('Une erreur est survenue. Réessayez.'), findsOneWidget);
     },
@@ -267,6 +278,11 @@ void main() {
       await pumpShow(tester);
       await tester.tap(find.text('Ouvrir'));
       await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('champ_adresse_livraison')),
+        'Résidence universitaire, chambre 12',
+      );
+      await tester.pump();
       await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
       await tester.pumpAndSettle();
 
@@ -292,10 +308,76 @@ void main() {
     await pumpShow(tester);
     await tester.tap(find.text('Ouvrir'));
     await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('champ_adresse_livraison')),
+      'Résidence universitaire, chambre 12',
+    );
+    await tester.pump();
     await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
     await tester.pumpAndSettle();
 
     verify(() => mockRepository.creerCommande(any())).called(1);
     expect(find.textContaining('Riz sauce arachide'), findsNothing);
   });
+
+  testWidgets(
+    'Test modale : le champ lieu de livraison est visible en livraison et '
+    'masqué en retrait',
+    (tester) async {
+      await pumpModal(tester);
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('champ_adresse_livraison')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('choix_retrait')));
+      await tester.pump();
+
+      expect(find.byKey(const Key('champ_adresse_livraison')), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'Test modale : la création est bloquée si le lieu de livraison est vide '
+    'et creerCommande n’est jamais appelé',
+    (tester) async {
+      await pumpModal(tester);
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
+      await tester.pumpAndSettle();
+
+      verifyNever(() => mockRepository.creerCommande(any()));
+      expect(find.text('Le lieu de livraison est requis'), findsOneWidget);
+      expect(find.textContaining('Riz sauce arachide'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'Test modale : en retrait, la commande est créée et adresseLivraison '
+    'est null',
+    (tester) async {
+      when(() => mockRepository.creerCommande(any()))
+          .thenAnswer((_) async => 'cmdRetrait');
+
+      await pumpModal(tester);
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('choix_retrait')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('bouton_confirmer_commande')));
+      await tester.pumpAndSettle();
+
+      final captured =
+          verify(() => mockRepository.creerCommande(captureAny()))
+                  .captured
+                  .single
+              as OrderModel;
+      expect(captured.typeReception, DeliveryType.retrait);
+      expect(captured.adresseLivraison, isNull);
+      expect(find.textContaining('Riz sauce arachide'), findsNothing);
+    },
+  );
 }

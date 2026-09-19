@@ -42,7 +42,7 @@ void main() {
   });
 
   group('MerchantOrdersController Logic', () {
-    test('orders should be sorted from oldest to newest', () async {
+    test('orders should be sorted from newest to oldest', () async {
       final now = DateTime.now();
       final o1 = OrderModel(
         idCommande: '1',
@@ -72,8 +72,8 @@ void main() {
 
       await Future.delayed(Duration.zero);
 
-      expect(controller.orders.first.idCommande, '1');
-      expect(controller.orders.last.idCommande, '2');
+      expect(controller.orders.first.idCommande, '2');
+      expect(controller.orders.last.idCommande, '1');
     });
 
     test('notifie l\'étudiant lorsque la commande est terminée', () async {
@@ -292,6 +292,153 @@ void main() {
         expect(find.text('Passer à : Reçue'), findsOneWidget);
       },
     );
+  });
+
+  group('MerchantOrderDetailScreen - Student Info', () {
+    testWidgets('should show a single fallback state when student is not found '
+        '(no refetch loop) and a missing address falls back to '
+        '"Lieu non spécifié"', (tester) async {
+      final order = OrderModel(
+        idCommande: 'ord_1',
+        idEtudiant: 'stud_1',
+        idCommercant: merchantId,
+        dateCommande: DateTime.now(),
+        montantTotal: 1500,
+        typeReception: DeliveryType.livraison,
+        statut: OrderStatus.enAttente,
+      );
+
+      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+          .thenAnswer((_) => Stream.value([order]));
+      when(() => mockUserRepository.obtenirUtilisateur('stud_1'))
+          .thenAnswer((_) async => null);
+
+      controller = MerchantOrdersController(
+        orderRepository: mockOrderRepository,
+        userRepository: mockUserRepository,
+        merchantId: merchantId,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: controller,
+            child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+          ),
+        ),
+      );
+
+      for (int i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.text('Inconnu'), findsOneWidget);
+      expect(find.text('Livraison : Lieu non spécifié'), findsOneWidget);
+      expect(find.byIcon(Icons.person), findsOneWidget);
+      verify(() => mockUserRepository.obtenirUtilisateur('stud_1')).called(1);
+    });
+
+    testWidgets(
+      'should show email, phone and delivery address for a delivery order',
+      (tester) async {
+        final order = OrderModel(
+          idCommande: 'ord_1',
+          idEtudiant: 'stud_1',
+          idCommercant: merchantId,
+          dateCommande: DateTime.now(),
+          montantTotal: 1500,
+          typeReception: DeliveryType.livraison,
+          adresseLivraison: 'Bâtiment A, salle 12',
+          statut: OrderStatus.enAttente,
+        );
+
+        when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+            .thenAnswer((_) => Stream.value([order]));
+        when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
+          (_) async => const UserModel(
+            idUser: 'stud_1',
+            prenoms: 'Jean',
+            nom: 'Dupont',
+            email: 'jean.dupont@campus.bj',
+            telephone: '97123456',
+            campus: 'Abomey',
+          ),
+        );
+
+        controller = MerchantOrdersController(
+          orderRepository: mockOrderRepository,
+          userRepository: mockUserRepository,
+          merchantId: merchantId,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: controller,
+              child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+            ),
+          ),
+        );
+
+        for (int i = 0; i < 20; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+
+        expect(find.text('Jean Dupont'), findsOneWidget);
+        expect(find.text('jean.dupont@campus.bj'), findsOneWidget);
+        expect(find.text('97123456'), findsOneWidget);
+        expect(find.text('Livraison : Bâtiment A, salle 12'), findsOneWidget);
+        expect(find.text('JD'), findsOneWidget);
+      },
+    );
+
+    testWidgets('should show the campus for a pickup (retrait) order', (
+      tester,
+    ) async {
+      final order = OrderModel(
+        idCommande: 'ord_1',
+        idEtudiant: 'stud_1',
+        idCommercant: merchantId,
+        dateCommande: DateTime.now(),
+        montantTotal: 1500,
+        typeReception: DeliveryType.retrait,
+        statut: OrderStatus.terminee,
+      );
+
+      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+          .thenAnswer((_) => Stream.value([order]));
+      when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
+        (_) async => const UserModel(
+          idUser: 'stud_1',
+          prenoms: 'Marie',
+          nom: 'Lawson',
+          email: 'marie.lawson@campus.bj',
+          campus: 'Cotonou',
+        ),
+      );
+
+      controller = MerchantOrdersController(
+        orderRepository: mockOrderRepository,
+        userRepository: mockUserRepository,
+        merchantId: merchantId,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: controller,
+            child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+          ),
+        ),
+      );
+
+      for (int i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.text('Campus Cotonou'), findsOneWidget);
+      expect(find.text('ML'), findsOneWidget);
+    });
   });
 
   testWidgets('OrderProgressBar renders correct number of steps', (
