@@ -24,43 +24,6 @@ class MerchantOrderDetailScreen extends StatefulWidget {
 }
 
 class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
-  UserModel? _student;
-  bool _isLoadingStudent = true;
-  bool _isFetching = false;
-  bool _studentRechercheFaite = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<void> _fetchStudentInfoById(String studentId) async {
-    if (_isFetching || !mounted || _studentRechercheFaite) return;
-
-    _isFetching = true;
-
-    try {
-      final controller = context.read<MerchantOrdersController>();
-      final student = await controller.getStudentInfo(studentId);
-      if (mounted) {
-        setState(() {
-          _student = student;
-          _isLoadingStudent = false;
-          _studentRechercheFaite = true;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _isLoadingStudent = false;
-          _studentRechercheFaite = true;
-        });
-      }
-    } finally {
-      _isFetching = false;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MerchantOrdersScope(
@@ -152,10 +115,6 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
 
             final order = orders[orderIndex];
 
-            if (!_studentRechercheFaite && !_isFetching) {
-              Future.microtask(() => _fetchStudentInfoById(order.idEtudiant));
-            }
-
             final steps = [OrderStatus.enAttente, ...order.statutsMarchand];
             final nextStatus = _getNextStatus(order);
 
@@ -220,51 +179,69 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 1,
-                    child: ListTile(
-                      leading: _AvatarEtudiant(
-                        photoUrl: _student?.photoUrl,
-                        nom: _student?.nomComplet ?? '',
-                      ),
-                      title: Text(
-                        _isLoadingStudent
-                            ? 'Chargement...'
-                            : (_student?.nomComplet ?? 'Inconnu'),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: _InformationsClient(
-                        etudiant: _student,
-                        isLoading: _isLoadingStudent,
-                        typeReception: order.typeReception,
-                        adresseLivraison: order.adresseLivraison,
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.verified_user,
-                              size: 14,
-                              color: Colors.grey.shade600,
+                    child: StreamBuilder<UserModel?>(
+                      stream: context
+                          .read<MerchantOrdersController>()
+                          .streamStudentInfo(order.idEtudiant),
+                      builder: (context, snapshot) {
+                        final enChargement =
+                            snapshot.connectionState == ConnectionState.waiting;
+                        final etudiant = snapshot.hasData
+                            ? snapshot.data
+                            : null;
+                        final introuvable =
+                            order.idEtudiant.trim().isEmpty ||
+                            !snapshot.hasData;
+
+                        return ListTile(
+                          leading: _AvatarEtudiant(
+                            photoUrl: etudiant?.photoUrl,
+                            nom: etudiant?.nomComplet ?? '',
+                          ),
+                          title: Text(
+                            enChargement
+                                ? 'Chargement...'
+                                : (etudiant?.nomComplet ??
+                                      'Étudiant non renseigné'),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: _InformationsClient(
+                            etudiant: etudiant,
+                            isLoading: enChargement,
+                            introuvable: introuvable,
+                            typeReception: order.typeReception,
+                            adresseLivraison: order.adresseLivraison,
+                          ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Client vérifié',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade700,
-                              ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          ],
-                        ),
-                      ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.verified_user,
+                                  size: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Client vérifié',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -538,20 +515,26 @@ class _InformationsClient extends StatelessWidget {
   const _InformationsClient({
     required this.etudiant,
     required this.isLoading,
+    required this.introuvable,
     required this.typeReception,
     required this.adresseLivraison,
   });
 
   final UserModel? etudiant;
   final bool isLoading;
+  final bool introuvable;
   final DeliveryType typeReception;
   final String? adresseLivraison;
 
   @override
   Widget build(BuildContext context) {
-    final champ = isLoading ? 'Chargement...' : '—';
-    final email = isLoading ? champ : (etudiant?.email ?? '');
-    final telephone = isLoading ? champ : (etudiant?.telephone ?? '');
+    final champ = isLoading ? 'Chargement...' : '';
+    final email = isLoading
+        ? champ
+        : (introuvable ? '' : (etudiant?.email ?? ''));
+    final telephone = isLoading
+        ? champ
+        : (introuvable ? '' : (etudiant?.telephone ?? ''));
     final campus = isLoading ? champ : (etudiant?.campus ?? '');
 
     return Column(

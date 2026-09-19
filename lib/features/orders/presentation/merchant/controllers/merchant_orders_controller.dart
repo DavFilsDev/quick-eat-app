@@ -114,8 +114,8 @@ class MerchantOrdersController extends ChangeNotifier {
     }
   }
 
-  Future<UserModel?> getStudentInfo(String studentId) {
-    return _userRepository.obtenirUtilisateur(studentId);
+  Stream<UserModel?> streamStudentInfo(String studentId) {
+    return _userRepository.streamUtilisateur(studentId);
   }
 
   @override
