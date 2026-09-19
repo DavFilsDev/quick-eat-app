@@ -133,4 +133,16 @@ void main() {
       expect(find.byKey(const Key('bouton_annuler_commande')), findsNothing);
     },
   );
+
+  testWidgets("n'affiche plus le badge ticket #QE-...", (tester) async {
+    await _pump(
+      tester,
+      _commande(
+        statut: OrderStatus.enAttente,
+        typeReception: DeliveryType.livraison,
+      ),
+    );
+
+    expect(find.textContaining('#QE-'), findsNothing);
+  });
 }

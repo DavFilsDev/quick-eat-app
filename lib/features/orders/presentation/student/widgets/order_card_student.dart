@@ -105,20 +105,8 @@ class OrderCardStudent extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  '#${_numeroCommande(commande.idCommande)}',
-                                  style: AppTextStyles.heading2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              _TagModeReception(
-                                typeReception: commande.typeReception,
-                              ),
-                            ],
+                          _TagModeReception(
+                            typeReception: commande.typeReception,
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -258,14 +246,6 @@ class OrderCardStudent extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _numeroCommande(String idCommande) {
-    if (idCommande.isEmpty) return 'QE-000';
-    final court = idCommande.length > 3
-        ? idCommande.substring(idCommande.length - 3)
-        : idCommande;
-    return 'QE-$court'.toUpperCase();
   }
 
   String _sousTitre(OrderModel commande) {
