@@ -84,6 +84,7 @@ class StudentOrdersController extends ChangeNotifier {
         nom: food.nom,
         quantite: quantite,
         prixUnitaire: food.prix,
+        imageUrl: food.imageUrl,
       );
 
       final commande = OrderModel(
