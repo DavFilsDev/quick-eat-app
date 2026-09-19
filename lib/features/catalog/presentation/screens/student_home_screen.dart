@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../../data/repositories/menu_repository.dart';
 import '../../../../data/repositories/user_repository.dart';
 import '../../../../routes/app_router.dart';
@@ -48,6 +49,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     return ChangeNotifierProvider(
       create: (_) => _controller,
       child: Scaffold(
+        backgroundColor: AppColors.background,
         appBar: QuickEatAppBar(
           onOuvrirCommandes: () =>
               context.read<MainLayoutController?>()?.select(1),
@@ -70,7 +72,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       hintText: 'Chercher un plat ou un restaurant...',
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
-                      fillColor: Colors.grey.shade100,
+                      fillColor: AppColors.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -84,7 +86,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: AppColors.textSecondary,
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -112,7 +114,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       Text(
                         '${plats.length} ${plats.length > 1 ? "plats" : "plat"}',
                         style: const TextStyle(
-                          color: Colors.grey,
+                          color: AppColors.textSecondary,
                           fontSize: 13,
                         ),
                       ),
