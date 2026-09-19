@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -159,8 +161,8 @@ void main() {
 
       when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
           .thenAnswer((_) => Stream.value([order]));
-      when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
-        (_) => Future.value(
+      when(() => mockUserRepository.streamUtilisateur('stud_1')).thenAnswer(
+        (_) => Stream<UserModel?>.value(
           const UserModel(
             idUser: 'stud_1',
             prenoms: 'Jean',
@@ -208,8 +210,8 @@ void main() {
 
         when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
             .thenAnswer((_) => Stream.value([order]));
-        when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
-          (_) => Future.value(
+        when(() => mockUserRepository.streamUtilisateur('stud_1')).thenAnswer(
+          (_) => Stream<UserModel?>.value(
             const UserModel(
               idUser: 'stud_1',
               prenoms: 'Jean',
@@ -258,8 +260,8 @@ void main() {
 
         when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
             .thenAnswer((_) => Stream.value([order]));
-        when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
-          (_) => Future.value(
+        when(() => mockUserRepository.streamUtilisateur('stud_1')).thenAnswer(
+          (_) => Stream<UserModel?>.value(
             const UserModel(
               idUser: 'stud_1',
               prenoms: 'Jean',
@@ -295,48 +297,49 @@ void main() {
   });
 
   group('MerchantOrderDetailScreen - Student Info', () {
-    testWidgets('should show a single fallback state when student is not found '
-        '(no refetch loop) and a missing address falls back to '
-        '"Lieu non spécifié"', (tester) async {
-      final order = OrderModel(
-        idCommande: 'ord_1',
-        idEtudiant: 'stud_1',
-        idCommercant: merchantId,
-        dateCommande: DateTime.now(),
-        montantTotal: 1500,
-        typeReception: DeliveryType.livraison,
-        statut: OrderStatus.enAttente,
-      );
+    testWidgets(
+      'should show the fallback text when the student profile is not found '
+      'and the delivery address falls back to "Lieu non spécifié"',
+      (tester) async {
+        final order = OrderModel(
+          idCommande: 'ord_1',
+          idEtudiant: 'stud_1',
+          idCommercant: merchantId,
+          dateCommande: DateTime.now(),
+          montantTotal: 1500,
+          typeReception: DeliveryType.livraison,
+          statut: OrderStatus.enAttente,
+        );
 
-      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
-          .thenAnswer((_) => Stream.value([order]));
-      when(() => mockUserRepository.obtenirUtilisateur('stud_1'))
-          .thenAnswer((_) async => null);
+        when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+            .thenAnswer((_) => Stream.value([order]));
+        when(() => mockUserRepository.streamUtilisateur('stud_1'))
+            .thenAnswer((_) => Stream<UserModel?>.value(null));
 
-      controller = MerchantOrdersController(
-        orderRepository: mockOrderRepository,
-        userRepository: mockUserRepository,
-        merchantId: merchantId,
-      );
+        controller = MerchantOrdersController(
+          orderRepository: mockOrderRepository,
+          userRepository: mockUserRepository,
+          merchantId: merchantId,
+        );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: ChangeNotifierProvider.value(
-            value: controller,
-            child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: controller,
+              child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+            ),
           ),
-        ),
-      );
+        );
 
-      for (int i = 0; i < 20; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
+        for (int i = 0; i < 20; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
 
-      expect(find.text('Inconnu'), findsOneWidget);
-      expect(find.text('Livraison : Lieu non spécifié'), findsOneWidget);
-      expect(find.byIcon(Icons.person), findsOneWidget);
-      verify(() => mockUserRepository.obtenirUtilisateur('stud_1')).called(1);
-    });
+        expect(find.text('Étudiant non renseigné'), findsOneWidget);
+        expect(find.text('Livraison : Lieu non spécifié'), findsOneWidget);
+        expect(find.byIcon(Icons.person), findsOneWidget);
+      },
+    );
 
     testWidgets(
       'should show email, phone and delivery address for a delivery order',
@@ -354,14 +357,16 @@ void main() {
 
         when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
             .thenAnswer((_) => Stream.value([order]));
-        when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
-          (_) async => const UserModel(
-            idUser: 'stud_1',
-            prenoms: 'Jean',
-            nom: 'Dupont',
-            email: 'jean.dupont@campus.bj',
-            telephone: '97123456',
-            campus: 'Abomey',
+        when(() => mockUserRepository.streamUtilisateur('stud_1')).thenAnswer(
+          (_) => Stream<UserModel?>.value(
+            const UserModel(
+              idUser: 'stud_1',
+              prenoms: 'Jean',
+              nom: 'Dupont',
+              email: 'jean.dupont@campus.bj',
+              telephone: '97123456',
+              campus: 'Abomey',
+            ),
           ),
         );
 
@@ -407,13 +412,15 @@ void main() {
 
       when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
           .thenAnswer((_) => Stream.value([order]));
-      when(() => mockUserRepository.obtenirUtilisateur('stud_1')).thenAnswer(
-        (_) async => const UserModel(
-          idUser: 'stud_1',
-          prenoms: 'Marie',
-          nom: 'Lawson',
-          email: 'marie.lawson@campus.bj',
-          campus: 'Cotonou',
+      when(() => mockUserRepository.streamUtilisateur('stud_1')).thenAnswer(
+        (_) => Stream<UserModel?>.value(
+          const UserModel(
+            idUser: 'stud_1',
+            prenoms: 'Marie',
+            nom: 'Lawson',
+            email: 'marie.lawson@campus.bj',
+            campus: 'Cotonou',
+          ),
         ),
       );
 
@@ -438,6 +445,66 @@ void main() {
 
       expect(find.text('Campus Cotonou'), findsOneWidget);
       expect(find.text('ML'), findsOneWidget);
+    });
+
+    testWidgets('should transition from fallback to full info when the student '
+        'profile arrives late', (tester) async {
+      final order = OrderModel(
+        idCommande: 'ord_1',
+        idEtudiant: 'stud_1',
+        idCommercant: merchantId,
+        dateCommande: DateTime.now(),
+        montantTotal: 1500,
+        typeReception: DeliveryType.livraison,
+        statut: OrderStatus.enAttente,
+      );
+
+      final streamUser = StreamController<UserModel?>();
+      addTearDown(streamUser.close);
+
+      when(() => mockOrderRepository.streamCommandesCommercant(merchantId))
+          .thenAnswer((_) => Stream.value([order]));
+      when(() => mockUserRepository.streamUtilisateur('stud_1'))
+          .thenAnswer((_) => streamUser.stream);
+
+      controller = MerchantOrdersController(
+        orderRepository: mockOrderRepository,
+        userRepository: mockUserRepository,
+        merchantId: merchantId,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: controller,
+            child: const MerchantOrderDetailScreen(idCommande: 'ord_1'),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 50));
+
+      streamUser.add(null);
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Étudiant non renseigné'), findsOneWidget);
+
+      streamUser.add(
+        const UserModel(
+          idUser: 'stud_1',
+          prenoms: 'Awa',
+          nom: 'Diabaté',
+          email: 'awa.diabate@campus.bj',
+          telephone: '96112233',
+          campus: 'Abomey',
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Awa Diabaté'), findsOneWidget);
+      expect(find.text('96112233'), findsOneWidget);
     });
   });
 
