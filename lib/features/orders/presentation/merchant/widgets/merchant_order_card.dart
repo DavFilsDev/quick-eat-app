@@ -35,7 +35,7 @@ class MerchantOrderCard extends StatelessWidget {
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -127,7 +127,7 @@ class MerchantOrderCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
             SizedBox(
               width: double.infinity,
@@ -138,7 +138,7 @@ class MerchantOrderCard extends StatelessWidget {
                   foregroundColor: AppColors.textPrimary,
                   elevation: 0,
                   visualDensity: VisualDensity.compact,
-                  minimumSize: const Size(56, 36),
+                  minimumSize: const Size(56, 40),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
