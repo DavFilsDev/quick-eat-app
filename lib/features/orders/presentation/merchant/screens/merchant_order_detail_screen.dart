@@ -30,6 +30,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
   Widget build(BuildContext context) {
     return MerchantOrdersScope(
       child: Scaffold(
+        backgroundColor: AppColors.background,
         appBar: AppBar(
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
