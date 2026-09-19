@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/app_text_styles.dart';
 import '../../../../../core/errors/failures.dart';
 import '../../../../../core/widgets/app_image.dart';
 import '../../../../../models/enums/delivery_type.dart';
@@ -69,8 +70,8 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: delivery
-                            ? Colors.orange.shade50
-                            : Colors.grey.shade200,
+                            ? AppColors.primary.withValues(alpha: 0.08)
+                            : AppColors.background,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -80,8 +81,8 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                             delivery ? Icons.directions_walk : Icons.storefront,
                             size: 14,
                             color: delivery
-                                ? Colors.deepOrange
-                                : Colors.grey.shade700,
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -90,8 +91,8 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: delivery
-                                  ? Colors.deepOrange
-                                  : Colors.grey.shade700,
+                                  ? AppColors.primary
+                                  : AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -125,6 +126,12 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Card(
+                    elevation: 0,
+                    color: AppColors.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.grey.shade200),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -150,7 +157,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                                       fontSize: 10,
                                       color: order.statut == s
                                           ? AppColors.primary
-                                          : Colors.grey,
+                                          : AppColors.textSecondary,
                                       fontWeight: order.statut == s
                                           ? FontWeight.bold
                                           : FontWeight.normal,
@@ -170,16 +177,18 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: AppColors.textSecondary,
                       letterSpacing: 1,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Card(
+                    elevation: 0,
+                    color: AppColors.surface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.grey.shade200),
                     ),
-                    elevation: 1,
                     child: StreamBuilder<UserModel?>(
                       stream: context
                           .read<MerchantOrdersController>()
@@ -219,7 +228,9 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
+                              color: AppColors.statusAccepted.withValues(
+                                alpha: 0.08,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
@@ -228,14 +239,15 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                                 Icon(
                                   Icons.verified_user,
                                   size: 14,
-                                  color: Colors.grey.shade600,
+                                  color: AppColors.statusAccepted,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'Client vérifié',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.statusAccepted,
                                   ),
                                 ),
                               ],
@@ -252,16 +264,18 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: AppColors.textSecondary,
                       letterSpacing: 1,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Card(
+                    elevation: 0,
+                    color: AppColors.surface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.grey.shade200),
                     ),
-                    elevation: 1,
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Row(
@@ -286,10 +300,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                                 const SizedBox(height: 2),
                                 Text(
                                   '${order.items.length} plat(s)',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                  ),
+                                  style: AppTextStyles.caption,
                                 ),
                               ],
                             ),
@@ -330,7 +341,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                           nextStatus,
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFC0392B),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -539,12 +550,12 @@ class _InformationsClient extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (telephone.trim().isNotEmpty)
-          Text(telephone, style: const TextStyle(fontSize: 12)),
+          Text(telephone, style: AppTextStyles.caption),
         Text(
           typeReception == DeliveryType.livraison
               ? 'Livraison : ${adresseLivraison ?? 'Lieu non spécifié'}'
               : 'Campus ${campus.isEmpty ? 'non renseigné' : campus}',
-          style: const TextStyle(fontSize: 12),
+          style: AppTextStyles.caption,
         ),
       ],
     );
