@@ -10,8 +10,9 @@ import '../../../../../models/order_model.dart';
 import '../../../../../models/order_item_model.dart';
 import '../../../../../models/user_model.dart';
 import '../controllers/merchant_orders_controller.dart';
-import '../widgets/order_progress_bar.dart';
+import '../widgets/dish_thumbnail.dart';
 import '../widgets/merchant_orders_scope.dart';
+import '../widgets/order_progress_bar.dart';
 
 class MerchantOrderDetailScreen extends StatefulWidget {
   final String idCommande;
@@ -41,7 +42,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                 ),
               ),
               Text(
-                'Détails #QE-${widget.idCommande.substring(0, 3).toUpperCase()}',
+                'Détails de la commande',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -76,7 +77,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            delivery ? Icons.delivery_dining : Icons.storefront,
+                            delivery ? Icons.directions_walk : Icons.storefront,
                             size: 14,
                             color: delivery
                                 ? Colors.deepOrange
@@ -265,18 +266,11 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.fastfood,
-                              color: Colors.deepOrange,
-                              size: 26,
-                            ),
+                          DishThumbnail(
+                            imageUrl: order.items.isNotEmpty
+                                ? order.items.first.imageUrl
+                                : null,
+                            size: 56,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -351,7 +345,7 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
                               color: Colors.white,
                             ),
                             const SizedBox(width: 6),
-                            Text('Passer à : ${nextStatus.label}'),
+                            Text(_actionLabel(order, nextStatus)),
                           ],
                         ),
                       ),
@@ -431,6 +425,13 @@ class _MerchantOrderDetailScreenState extends State<MerchantOrderDetailScreen> {
     return rest > 0
         ? '${first.quantite}× ${first.nom} +$rest autre(s)'
         : '${first.quantite}× ${first.nom}';
+  }
+
+  String _actionLabel(OrderModel order, OrderStatus nextStatus) {
+    if (nextStatus == OrderStatus.recu) {
+      return 'Reçu par le client';
+    }
+    return 'Passer à : ${nextStatus.label}';
   }
 
   String _actionHint(OrderModel order, OrderStatus nextStatus) {
@@ -529,9 +530,6 @@ class _InformationsClient extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final champ = isLoading ? 'Chargement...' : '';
-    final email = isLoading
-        ? champ
-        : (introuvable ? '' : (etudiant?.email ?? ''));
     final telephone = isLoading
         ? champ
         : (introuvable ? '' : (etudiant?.telephone ?? ''));
@@ -540,8 +538,6 @@ class _InformationsClient extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (email.trim().isNotEmpty)
-          Text(email, style: const TextStyle(fontSize: 12)),
         if (telephone.trim().isNotEmpty)
           Text(telephone, style: const TextStyle(fontSize: 12)),
         Text(
