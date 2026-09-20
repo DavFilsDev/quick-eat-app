@@ -11,7 +11,6 @@ import '../widgets/campus_selector.dart';
 import '../widgets/country_code_picker.dart';
 import '../widgets/role_toggle.dart';
 import '../../domain/campus_options.dart';
-import '../../domain/role_detector.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -40,12 +39,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(() => setState(() {}));
-    _emailController.addListener(() {
-      final suggestedRole = RoleDetector.detectFromEmail(_emailController.text);
-      if (suggestedRole != null && suggestedRole != _role) {
-        setState(() => _role = suggestedRole);
-      }
-    });
     _authController = AuthController(
       authRepository: FirebaseAuthRepository(),
       userRepository: FirestoreUserRepository(),
