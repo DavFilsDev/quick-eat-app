@@ -15,48 +15,35 @@ class RoleToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Sélectionne ton profil',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-            color: AppColors.textSecondary,
-          ),
+    return InputDecorator(
+      isEmpty: false,
+      decoration: const InputDecoration(
+        labelText: 'Sélectionne ton profil',
+        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
-        const SizedBox(height: 8),
-        Container(
-          height: 56,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            border: Border.all(
-              color: AppColors.textSecondary.withValues(alpha: 0.4),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildOption(
+              label: 'Étudiant',
+              icon: Icons.person_outline,
+              isSelected: selectedRole == UserRole.student,
+              onTap: () => onRoleChanged(UserRole.student),
             ),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildOption(
-                  label: 'Étudiant',
-                  icon: Icons.person_outline,
-                  isSelected: selectedRole == UserRole.student,
-                  onTap: () => onRoleChanged(UserRole.student),
-                ),
-              ),
-              Expanded(
-                child: _buildOption(
-                  label: 'Commerçant',
-                  icon: Icons.storefront,
-                  isSelected: selectedRole == UserRole.merchant,
-                  onTap: () => onRoleChanged(UserRole.merchant),
-                ),
-              ),
-            ],
+          Expanded(
+            child: _buildOption(
+              label: 'Commerçant',
+              icon: Icons.storefront,
+              isSelected: selectedRole == UserRole.merchant,
+              onTap: () => onRoleChanged(UserRole.merchant),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -71,8 +58,8 @@ class RoleToggle extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        margin: const EdgeInsets.all(2),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
