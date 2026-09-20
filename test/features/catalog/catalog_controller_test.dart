@@ -286,6 +286,78 @@ void main() {
         expect(controller.plats.single.idCommercant, 'user-004');
       },
     );
+
+    test(
+      'isLoading reste vrai tant que le chargement initial pas terminé',
+      () async {
+        expect(controller.isLoading, isTrue);
+
+        streamController.add(<FoodModel>[
+          FoodModel(
+            idFood: 'food-001',
+            nom: 'Burger Poulet',
+            prix: 1500,
+            disponible: true,
+            idCommercant: 'user-004',
+          ),
+        ]);
+        await _viderMicrotaches();
+
+        expect(controller.isLoading, isFalse);
+        expect(controller.plats.length, 1);
+      },
+    );
+
+    test(
+      'isLoading passe à faux après émission et charge campus/commerçants',
+      () async {
+        when(() => mockUserRepository.obtenirUtilisateur(any()))
+            .thenAnswer((invocation) async {
+              final id = invocation.positionalArguments.first as String;
+              return switch (id) {
+                'etudiant-1' => _utilisateur(
+                  id: 'etudiant-1',
+                  prenoms: 'Moussa',
+                  nom: 'Ndiaye',
+                  campus: 'Campus de Ngoa-Ekéllé',
+                  role: UserRole.student,
+                ),
+                'user-004' => _utilisateur(
+                  id: 'user-004',
+                  prenoms: 'Amina',
+                  nom: 'Diallo',
+                  campus: 'Campus de Ngoa-Ekéllé',
+                ),
+                _ => null,
+              };
+            });
+
+        controller.dispose();
+        controller = CatalogController(
+          menuRepository: mockMenuRepository,
+          userRepository: mockUserRepository,
+          idEtudiant: 'etudiant-1',
+        );
+        await _viderMicrotaches();
+
+        expect(controller.isLoading, isTrue);
+
+        streamController.add(<FoodModel>[
+          FoodModel(
+            idFood: 'food-001',
+            nom: 'Burger Poulet',
+            prix: 1500,
+            disponible: true,
+            idCommercant: 'user-004',
+          ),
+        ]);
+        await _viderMicrotaches();
+
+        expect(controller.isLoading, isFalse);
+        expect(controller.plats.length, 1);
+        expect(controller.plats.single.idCommercant, 'user-004');
+      },
+    );
   });
 }
 

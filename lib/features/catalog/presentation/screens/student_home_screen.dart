@@ -123,13 +123,15 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   const SizedBox(height: 12),
 
                   if (plats.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Center(
-                        child: Text(
-                          "Il n'y a pas encore de plats disponibles dans votre campus.",
-                          textAlign: TextAlign.center,
-                        ),
+                        child: controller.isLoading
+                            ? const CircularProgressIndicator()
+                            : Text(
+                                controller.errorMessage ?? "Il n'y a pas encore de plats disponibles dans votre campus.",
+                                textAlign: TextAlign.center,
+                              ),
                       ),
                     )
                   else
@@ -162,13 +164,15 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   const SizedBox(height: 12),
 
                   if (restaurantIds.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Center(
-                        child: Text(
-                          "Pour l'instant, il n'y a pas encore de restaurant dans votre campus.",
-                          textAlign: TextAlign.center,
-                        ),
+                        child: controller.isLoading
+                            ? const CircularProgressIndicator()
+                            : Text(
+                                controller.errorMessage ?? "Pour l'instant, il n'y a pas encore de restaurant dans votre campus.",
+                                textAlign: TextAlign.center,
+                              ),
                       ),
                     )
                   else

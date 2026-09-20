@@ -13,7 +13,10 @@ class CatalogController extends ChangeNotifier {
     required this.userRepository,
     this.idEtudiant,
   }) {
-    _subscription = menuRepository.streamMenus().listen(_onMenus);
+    _subscription = menuRepository.streamMenus().listen(
+      _onMenus,
+      onError: _onErreurMenus,
+    );
     _chargerCampusEtudiant();
   }
 
@@ -33,6 +36,9 @@ class CatalogController extends ChangeNotifier {
   bool _chargementCommercantsEnCours = false;
   bool _rechargerCommercants = false;
   bool _disposed = false;
+  bool _isLoading = true;
+  bool _donneesInitiales = false;
+  String? _errorMessage;
 
   final Map<String, String> _nomsCommercants = {};
 
@@ -47,6 +53,10 @@ class CatalogController extends ChangeNotifier {
       : getNomRestaurant(_idCommercantSelectionne!);
 
   String get categorieSelectionnee => _categorieSelectionnee ?? 'Tous';
+
+  bool get isLoading => _isLoading;
+
+  String? get errorMessage => _errorMessage;
 
   List<FoodModel> get plats => _platsFiltres;
 
@@ -115,8 +125,16 @@ class CatalogController extends ChangeNotifier {
 
   void _onMenus(List<FoodModel> plats) {
     _tousLesPlats = plats.where((m) => m.disponible).toList();
+    _donneesInitiales = true;
     _applyFiltres();
     _chargerCommercants();
+  }
+
+  void _onErreurMenus(Object error) {
+    _errorMessage = 'Erreur lors du chargement des plats : $error';
+    _donneesInitiales = true;
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<void> _chargerCampusEtudiant() async {
@@ -138,9 +156,19 @@ class CatalogController extends ChangeNotifier {
     do {
       _rechargerCommercants = false;
       final ids = _tousLesPlats.map((m) => m.idCommercant).toSet();
-      for (final id in ids) {
-        if (_commercantsCharges.contains(id)) continue;
-        final user = await userRepository.obtenirUtilisateur(id);
+      final aCharger = ids
+          .where((id) => !_commercantsCharges.contains(id))
+          .toList();
+      final resultats = await Future.wait(
+        aCharger.map((id) async {
+          try {
+            return (id, await userRepository.obtenirUtilisateur(id));
+          } catch (_) {
+            return (id, null);
+          }
+        }),
+      );
+      for (final (id, user) in resultats) {
         _commercantsCharges.add(id);
         if (user != null) {
           _nomsCommercants[id] = user.nomComplet;
@@ -151,6 +179,9 @@ class CatalogController extends ChangeNotifier {
       }
     } while (_rechargerCommercants);
     _chargementCommercantsEnCours = false;
+    if (_donneesInitiales) {
+      _isLoading = false;
+    }
     _applyFiltres();
   }
 
