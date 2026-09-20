@@ -181,15 +181,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Center(
-                    child: Image(
-                      image: AssetImage('assets/images/quickeat.png'),
-                      width: 72,
-                      height: 72,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
                   Text(
                     'QuickEat',
                     style: TextStyle(
@@ -199,7 +190,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   const Text(
                     'Création de compte',
                     style: TextStyle(
