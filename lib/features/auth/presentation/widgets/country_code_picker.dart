@@ -38,7 +38,7 @@ class CountryCodePicker extends StatelessWidget {
       onTap: () => _ouvrir(context),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        height: 56,
+        height: 44,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade400),

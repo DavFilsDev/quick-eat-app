@@ -206,7 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     selectedRole: _role,
                     onRoleChanged: (newRole) => setState(() => _role = newRole),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
                   AuthTextField(
                     controller: _nomController,
@@ -215,7 +215,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: (val) =>
                         (val == null || val.isEmpty) ? 'Nom requis' : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
                   AuthTextField(
                     controller: _prenomsController,
                     label: 'Prénoms',
@@ -223,7 +223,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: (val) =>
                         (val == null || val.isEmpty) ? 'Prénom requis' : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -257,14 +257,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
                   CampusSelector(
                     selection: _campusSelectionne,
                     onChanged: (val) =>
                         setState(() => _campusSelectionne = val),
                     customController: _campusPersonnaliseController,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
                   AuthTextField(
                     controller: _emailController,
                     label: 'Email universitaire ou perso',
@@ -274,7 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ? 'Email invalide'
                         : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
                   AuthTextField(
                     controller: _passwordController,
                     label: 'Mot de passe',
