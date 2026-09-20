@@ -11,7 +11,7 @@ import '../../../../../models/order_model.dart';
 import '../../../../../models/order_item_model.dart';
 import '../../../../../models/user_model.dart';
 import '../controllers/merchant_orders_controller.dart';
-import '../widgets/dish_thumbnail.dart';
+import '../../../../../core/widgets/dish_thumbnail.dart';
 import '../widgets/merchant_orders_scope.dart';
 import '../widgets/order_progress_bar.dart';
 

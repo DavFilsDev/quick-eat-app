@@ -5,7 +5,7 @@ import '../../../../../core/constants/app_text_styles.dart';
 import '../../../../../core/utils/time_ago_formatter.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/order_model.dart';
-import 'dish_thumbnail.dart';
+import '../../../../../core/widgets/dish_thumbnail.dart';
 import 'order_status_badge.dart';
 
 class MerchantOrderCard extends StatelessWidget {
