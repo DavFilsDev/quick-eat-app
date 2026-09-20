@@ -114,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ];
 
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 4.0),
       child: Row(
         children: [
           for (int i = 1; i <= 3; i++) ...[
@@ -173,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Form(
@@ -181,34 +181,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const Center(
+                    child: Image(
+                      image: AssetImage('assets/images/quickeat.png'),
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Text(
                     'QuickEat',
                     style: TextStyle(
-                      fontSize: 32,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   const Text(
-                    'Bienvenu parmi nous ! 👋',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    'Création de compte',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Commande en quelques minutes ou commence à vendre sur ton campus.',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   RoleToggle(
                     selectedRole: _role,
                     onRoleChanged: (newRole) => setState(() => _role = newRole),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   AuthTextField(
                     controller: _nomController,
@@ -217,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: (val) =>
                         (val == null || val.isEmpty) ? 'Nom requis' : null,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   AuthTextField(
                     controller: _prenomsController,
                     label: 'Prénoms',
@@ -225,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     validator: (val) =>
                         (val == null || val.isEmpty) ? 'Prénom requis' : null,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -259,14 +266,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   CampusSelector(
                     selection: _campusSelectionne,
                     onChanged: (val) =>
                         setState(() => _campusSelectionne = val),
                     customController: _campusPersonnaliseController,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   AuthTextField(
                     controller: _emailController,
                     label: 'Email universitaire ou perso',
@@ -276,7 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ? 'Email invalide'
                         : null,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   AuthTextField(
                     controller: _passwordController,
                     label: 'Mot de passe',
@@ -296,7 +303,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         : null,
                   ),
                   _buildPasswordStrengthIndicator(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   SizedBox(
                     height: 48,
                     child: ElevatedButton(
@@ -326,7 +333,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

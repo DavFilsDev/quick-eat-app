@@ -96,19 +96,22 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const Center(
+                    child: Image(
+                      image: AssetImage('assets/images/quickeat.png'),
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Text(
                     'QuickEat',
                     style: TextStyle(
-                      fontSize: 32,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Bon retour parmi nous ! 👋',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 6),
@@ -117,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
                   AuthTextField(
                     controller: _emailController,
@@ -146,22 +149,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     validator: (val) => (val == null || val.length < 6)
                         ? 'Mot de passe trop court'
                         : null,
-                  ),
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Saisissez votre email pour réinitialiser.',
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text('Mot de passe oublié ?'),
-                    ),
                   ),
                   const SizedBox(height: 24),
 
