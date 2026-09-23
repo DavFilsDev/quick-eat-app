@@ -4,6 +4,7 @@ class OrderItemModel {
   final String nom;
   final int quantite;
   final double prixUnitaire;
+  final String? imageUrl;
 
   const OrderItemModel({
     this.idItem = '',
@@ -11,6 +12,7 @@ class OrderItemModel {
     required this.nom,
     required this.quantite,
     required this.prixUnitaire,
+    this.imageUrl,
   });
 
   double get sousTotal => quantite * prixUnitaire;
@@ -22,6 +24,7 @@ class OrderItemModel {
       nom: data['nom'] as String? ?? '',
       quantite: data['quantite'] as int? ?? 1,
       prixUnitaire: (data['prixUnitaire'] as num?)?.toDouble() ?? 0,
+      imageUrl: data['imageUrl'] as String?,
     );
   }
 
@@ -32,6 +35,7 @@ class OrderItemModel {
       'nom': nom,
       'quantite': quantite,
       'prixUnitaire': prixUnitaire,
+      if (imageUrl != null && imageUrl!.isNotEmpty) 'imageUrl': imageUrl,
     };
   }
 

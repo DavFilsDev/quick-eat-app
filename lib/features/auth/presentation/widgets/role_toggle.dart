@@ -15,56 +15,76 @@ class RoleToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Sélectionne ton profil',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+    return InputDecorator(
+      isEmpty: false,
+      decoration: const InputDecoration(
+        labelText: 'Sélectionne ton profil',
+        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            _buildChip(
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildOption(
               label: 'Étudiant',
+              icon: Icons.person_outline,
               isSelected: selectedRole == UserRole.student,
               onTap: () => onRoleChanged(UserRole.student),
             ),
-            const SizedBox(width: 12),
-            _buildChip(
+          ),
+          Expanded(
+            child: _buildOption(
               label: 'Commerçant',
+              icon: Icons.storefront,
               isSelected: selectedRole == UserRole.merchant,
               onTap: () => onRoleChanged(UserRole.merchant),
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildChip({
+  Widget _buildOption({
     required String label,
+    required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.primary,
-            width: 1.5,
-          ),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.primary,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

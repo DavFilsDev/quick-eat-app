@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../models/food_model.dart';
@@ -18,7 +19,12 @@ class FoodCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -30,19 +36,13 @@ class FoodCard extends StatelessWidget {
                 children: [
                   Text(
                     food.nom,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: AppTextStyles.heading2.copyWith(fontSize: 16),
                   ),
                   if (description != null && description.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
+                      style: AppTextStyles.caption,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -52,11 +52,7 @@ class FoodCard extends StatelessWidget {
                     children: [
                       Text(
                         CurrencyFormatter.format(food.prix),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
+                        style: AppTextStyles.price,
                       ),
                       const Spacer(),
                       ElevatedButton(
@@ -79,7 +75,7 @@ class FoodCard extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               child: AppImage(
                 value: food.imageUrl ?? '',
                 width: 80,
@@ -87,8 +83,11 @@ class FoodCard extends StatelessWidget {
                 errorWidget: Container(
                   width: 80,
                   height: 80,
-                  color: Colors.grey.shade200,
-                  child: const Icon(Icons.fastfood, color: Colors.grey),
+                  color: AppColors.background,
+                  child: const Icon(
+                    Icons.fastfood,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ),

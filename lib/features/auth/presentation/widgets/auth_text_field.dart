@@ -34,6 +34,7 @@ class AuthTextField extends StatelessWidget {
         hintText: hintText,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
         suffixIcon: suffixIcon,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
         ),

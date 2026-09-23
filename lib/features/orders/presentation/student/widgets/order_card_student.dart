@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/constants/app_text_styles.dart';
+import '../../../../../core/widgets/dish_thumbnail.dart';
 import '../../../../../models/enums/delivery_type.dart';
 import '../../../../../models/enums/order_status.dart';
 import '../../../../../models/order_model.dart';
@@ -105,20 +106,8 @@ class OrderCardStudent extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  '#${_numeroCommande(commande.idCommande)}',
-                                  style: AppTextStyles.heading2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              _TagModeReception(
-                                typeReception: commande.typeReception,
-                              ),
-                            ],
+                          _TagModeReception(
+                            typeReception: commande.typeReception,
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -142,18 +131,7 @@ class OrderCardStudent extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Row(
                       children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: AppColors.background,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.restaurant,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
+                        DishThumbnail(imageUrl: item.imageUrl, size: 44),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -258,14 +236,6 @@ class OrderCardStudent extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _numeroCommande(String idCommande) {
-    if (idCommande.isEmpty) return 'QE-000';
-    final court = idCommande.length > 3
-        ? idCommande.substring(idCommande.length - 3)
-        : idCommande;
-    return 'QE-$court'.toUpperCase();
   }
 
   String _sousTitre(OrderModel commande) {

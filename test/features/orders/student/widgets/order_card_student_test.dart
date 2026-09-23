@@ -133,4 +133,60 @@ void main() {
       expect(find.byKey(const Key('bouton_annuler_commande')), findsNothing);
     },
   );
+
+  group("Vignette du plat dans la carte commande étudiant", () {
+    testWidgets('affiche la photo quand imageUrl est renseigné', (
+      tester,
+    ) async {
+      final commande = OrderModel(
+        idCommande: 'cmd123',
+        idEtudiant: 'etu1',
+        idCommercant: 'com1',
+        dateCommande: DateTime.now(),
+        montantTotal: 2500,
+        typeReception: DeliveryType.retrait,
+        statut: OrderStatus.enAttente,
+        items: const [
+          OrderItemModel(
+            idFood: 'food1',
+            nom: 'Riz sauce arachide',
+            quantite: 1,
+            prixUnitaire: 2500,
+            imageUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          ),
+        ],
+      );
+
+      await _pump(tester, commande);
+
+      expect(find.byType(Image), findsOneWidget);
+    });
+
+    testWidgets("affiche l'icône de repli quand imageUrl est null", (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        _commande(
+          statut: OrderStatus.enAttente,
+          typeReception: DeliveryType.retrait,
+        ),
+      );
+
+      expect(find.byIcon(Icons.restaurant), findsOneWidget);
+      expect(find.byType(Image), findsNothing);
+    });
+  });
+
+  testWidgets("n'affiche plus le badge ticket #QE-...", (tester) async {
+    await _pump(
+      tester,
+      _commande(
+        statut: OrderStatus.enAttente,
+        typeReception: DeliveryType.livraison,
+      ),
+    );
+
+    expect(find.textContaining('#QE-'), findsNothing);
+  });
 }

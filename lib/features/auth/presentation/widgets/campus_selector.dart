@@ -28,6 +28,7 @@ class CampusSelector extends StatelessWidget {
           decoration: const InputDecoration(
             labelText: 'Ton Campus principal',
             prefixIcon: Icon(Icons.school_outlined),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),

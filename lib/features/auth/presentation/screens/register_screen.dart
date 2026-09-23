@@ -11,7 +11,6 @@ import '../widgets/campus_selector.dart';
 import '../widgets/country_code_picker.dart';
 import '../widgets/role_toggle.dart';
 import '../../domain/campus_options.dart';
-import '../../domain/role_detector.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -40,12 +39,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _passwordController.addListener(() => setState(() {}));
-    _emailController.addListener(() {
-      final suggestedRole = RoleDetector.detectFromEmail(_emailController.text);
-      if (suggestedRole != null && suggestedRole != _role) {
-        setState(() => _role = suggestedRole);
-      }
-    });
     _authController = AuthController(
       authRepository: FirebaseAuthRepository(),
       userRepository: FirestoreUserRepository(),
@@ -121,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     ];
 
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 4.0),
       child: Row(
         children: [
           for (int i = 1; i <= 3; i++) ...[
@@ -180,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Form(
@@ -191,7 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Text(
                     'QuickEat',
                     style: TextStyle(
-                      fontSize: 32,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
@@ -199,17 +192,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Bienvenu parmi nous ! 👋',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    'Création de compte',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Commande en quelques minutes ou commence à vendre sur ton campus.',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   RoleToggle(
                     selectedRole: _role,
@@ -303,7 +294,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         : null,
                   ),
                   _buildPasswordStrengthIndicator(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   SizedBox(
                     height: 48,
                     child: ElevatedButton(
@@ -333,7 +324,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
